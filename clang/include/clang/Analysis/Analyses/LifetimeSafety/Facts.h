@@ -65,9 +65,7 @@ public:
   }
 
   virtual void dump(llvm::raw_ostream &OS, const LoanManager &,
-                    const OriginManager &) const {
-    OS << "Fact (Kind: " << static_cast<int>(K) << ")\n";
-  }
+                    const OriginManager &) const;
 };
 
 /// A `ProgramPoint` identifies a location in the CFG by pointing to a specific
@@ -88,13 +86,7 @@ public:
   LoanID getLoanID() const { return LID; }
   OriginID getOriginID() const { return OID; }
   void dump(llvm::raw_ostream &OS, const LoanManager &LM,
-            const OriginManager &OM) const override {
-    OS << "Issue (";
-    LM.getLoan(getLoanID()).dump(OS);
-    OS << ", ToOrigin: ";
-    OM.dump(getOriginID(), OS);
-    OS << ")\n";
-  }
+            const OriginManager &OM) const override;
 };
 
 class ExpireFact : public Fact {
@@ -111,11 +103,7 @@ public:
   SourceLocation getExpiryLoc() const { return ExpiryLoc; }
 
   void dump(llvm::raw_ostream &OS, const LoanManager &LM,
-            const OriginManager &) const override {
-    OS << "Expire (";
-    LM.getLoan(getLoanID()).dump(OS);
-    OS << ")\n";
-  }
+            const OriginManager &) const override;
 };
 
 class OriginFlowFact : public Fact {
@@ -139,14 +127,7 @@ public:
   bool getKillDest() const { return KillDest; }
 
   void dump(llvm::raw_ostream &OS, const LoanManager &,
-            const OriginManager &OM) const override {
-    OS << "OriginFlow (Dest: ";
-    OM.dump(getDestOriginID(), OS);
-    OS << ", Src: ";
-    OM.dump(getSrcOriginID(), OS);
-    OS << (getKillDest() ? "" : ", Merge");
-    OS << ")\n";
-  }
+            const OriginManager &OM) const override;
 };
 
 class ReturnOfOriginFact : public Fact {
@@ -160,11 +141,7 @@ public:
   ReturnOfOriginFact(OriginID OID) : Fact(Kind::ReturnOfOrigin), OID(OID) {}
   OriginID getReturnedOriginID() const { return OID; }
   void dump(llvm::raw_ostream &OS, const LoanManager &,
-            const OriginManager &OM) const override {
-    OS << "ReturnOfOrigin (";
-    OM.dump(getReturnedOriginID(), OS);
-    OS << ")\n";
-  }
+            const OriginManager &OM) const override;
 };
 
 class UseFact : public Fact {
@@ -187,11 +164,7 @@ public:
   bool isWritten() const { return IsWritten; }
 
   void dump(llvm::raw_ostream &OS, const LoanManager &,
-            const OriginManager &OM) const override {
-    OS << "Use (";
-    OM.dump(getUsedOrigin(OM), OS);
-    OS << ", " << (isWritten() ? "Write" : "Read") << ")\n";
-  }
+            const OriginManager &OM) const override;
 };
 
 /// A dummy-fact used to mark a specific point in the code for testing.
@@ -208,9 +181,7 @@ public:
   StringRef getAnnotation() const { return Annotation; }
 
   void dump(llvm::raw_ostream &OS, const LoanManager &,
-            const OriginManager &) const override {
-    OS << "TestPoint (Annotation: \"" << getAnnotation() << "\")\n";
-  }
+            const OriginManager &) const override;
 };
 
 class FactManager {
@@ -233,26 +204,7 @@ public:
     return new (Mem) FactType(std::forward<Args>(args)...);
   }
 
-  void dump(const CFG &Cfg, AnalysisDeclContext &AC) const {
-    llvm::dbgs() << "==========================================\n";
-    llvm::dbgs() << "       Lifetime Analysis Facts:\n";
-    llvm::dbgs() << "==========================================\n";
-    if (const Decl *D = AC.getDecl())
-      if (const auto *ND = dyn_cast<NamedDecl>(D))
-        llvm::dbgs() << "Function: " << ND->getQualifiedNameAsString() << "\n";
-    // Print blocks in the order as they appear in code for a stable ordering.
-    for (const CFGBlock *B : *AC.getAnalysis<PostOrderCFGView>()) {
-      llvm::dbgs() << "  Block B" << B->getBlockID() << ":\n";
-      auto It = BlockToFactsMap.find(B);
-      if (It != BlockToFactsMap.end()) {
-        for (const Fact *F : It->second) {
-          llvm::dbgs() << "    ";
-          F->dump(llvm::dbgs(), LoanMgr, OriginMgr);
-        }
-      }
-      llvm::dbgs() << "  End of Block\n";
-    }
-  }
+  void dump(const CFG &Cfg, AnalysisDeclContext &AC) const;
 
   LoanManager &getLoanMgr() { return LoanMgr; }
   const LoanManager &getLoanMgr() const { return LoanMgr; }
