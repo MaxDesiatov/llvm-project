@@ -405,12 +405,12 @@ int main() {
 // CHECK1-NEXT:    [[STOREDV:%.*]] = zext i1 [[TOBOOL]] to i8
 // CHECK1-NEXT:    store i8 [[STOREDV]], ptr [[DOTCAPTURE_EXPR_]], align 1
 // CHECK1-NEXT:    [[TMP16:%.*]] = load i8, ptr [[DOTCAPTURE_EXPR_]], align 1
-// CHECK1-NEXT:    [[LOADEDV:%.*]] = trunc i8 [[TMP16]] to i1
+// CHECK1-NEXT:    [[LOADEDV:%.*]] = icmp ne i8 [[TMP16]], 0
 // CHECK1-NEXT:    [[STOREDV1:%.*]] = zext i1 [[LOADEDV]] to i8
 // CHECK1-NEXT:    store i8 [[STOREDV1]], ptr [[DOTCAPTURE_EXPR__CASTED]], align 1
 // CHECK1-NEXT:    [[TMP17:%.*]] = load i64, ptr [[DOTCAPTURE_EXPR__CASTED]], align 8
 // CHECK1-NEXT:    [[TMP18:%.*]] = load i8, ptr [[DOTCAPTURE_EXPR_]], align 1
-// CHECK1-NEXT:    [[LOADEDV2:%.*]] = trunc i8 [[TMP18]] to i1
+// CHECK1-NEXT:    [[LOADEDV2:%.*]] = icmp ne i8 [[TMP18]], 0
 // CHECK1-NEXT:    br i1 [[LOADEDV2]], label [[OMP_IF_THEN:%.*]], label [[OMP_IF_ELSE:%.*]]
 // CHECK1:       omp_if.then:
 // CHECK1-NEXT:    [[TMP19:%.*]] = getelementptr inbounds [1 x ptr], ptr [[DOTOFFLOAD_BASEPTRS]], i32 0, i32 0
@@ -422,7 +422,7 @@ int main() {
 // CHECK1-NEXT:    [[TMP22:%.*]] = getelementptr inbounds [1 x ptr], ptr [[DOTOFFLOAD_BASEPTRS]], i32 0, i32 0
 // CHECK1-NEXT:    [[TMP23:%.*]] = getelementptr inbounds [1 x ptr], ptr [[DOTOFFLOAD_PTRS]], i32 0, i32 0
 // CHECK1-NEXT:    [[TMP24:%.*]] = load i8, ptr [[DOTCAPTURE_EXPR_]], align 1
-// CHECK1-NEXT:    [[LOADEDV3:%.*]] = trunc i8 [[TMP24]] to i1
+// CHECK1-NEXT:    [[LOADEDV3:%.*]] = icmp ne i8 [[TMP24]], 0
 // CHECK1-NEXT:    [[TMP25:%.*]] = select i1 [[LOADEDV3]], i32 0, i32 1
 // CHECK1-NEXT:    [[TMP26:%.*]] = insertvalue [3 x i32] zeroinitializer, i32 [[TMP25]], 0
 // CHECK1-NEXT:    [[TMP27:%.*]] = getelementptr inbounds nuw [[STRUCT___TGT_KERNEL_ARGUMENTS]], ptr [[KERNEL_ARGS5]], i32 0, i32 0
@@ -611,7 +611,7 @@ int main() {
 // CHECK1-NEXT:    [[DOTCAPTURE_EXPR__CASTED:%.*]] = alloca i64, align 8
 // CHECK1-NEXT:    store i64 [[DOTCAPTURE_EXPR_]], ptr [[DOTCAPTURE_EXPR__ADDR]], align 8
 // CHECK1-NEXT:    [[TMP0:%.*]] = load i8, ptr [[DOTCAPTURE_EXPR__ADDR]], align 1
-// CHECK1-NEXT:    [[LOADEDV:%.*]] = trunc i8 [[TMP0]] to i1
+// CHECK1-NEXT:    [[LOADEDV:%.*]] = icmp ne i8 [[TMP0]], 0
 // CHECK1-NEXT:    [[STOREDV:%.*]] = zext i1 [[LOADEDV]] to i8
 // CHECK1-NEXT:    store i8 [[STOREDV]], ptr [[DOTCAPTURE_EXPR__CASTED]], align 1
 // CHECK1-NEXT:    [[TMP1:%.*]] = load i64, ptr [[DOTCAPTURE_EXPR__CASTED]], align 8
@@ -735,12 +735,12 @@ int main() {
 // CHECK1-NEXT:    [[STOREDV:%.*]] = zext i1 [[TOBOOL]] to i8
 // CHECK1-NEXT:    store i8 [[STOREDV]], ptr [[DOTCAPTURE_EXPR_]], align 1
 // CHECK1-NEXT:    [[TMP16:%.*]] = load i8, ptr [[DOTCAPTURE_EXPR_]], align 1
-// CHECK1-NEXT:    [[LOADEDV:%.*]] = trunc i8 [[TMP16]] to i1
+// CHECK1-NEXT:    [[LOADEDV:%.*]] = icmp ne i8 [[TMP16]], 0
 // CHECK1-NEXT:    [[STOREDV1:%.*]] = zext i1 [[LOADEDV]] to i8
 // CHECK1-NEXT:    store i8 [[STOREDV1]], ptr [[DOTCAPTURE_EXPR__CASTED]], align 1
 // CHECK1-NEXT:    [[TMP17:%.*]] = load i64, ptr [[DOTCAPTURE_EXPR__CASTED]], align 8
 // CHECK1-NEXT:    [[TMP18:%.*]] = load i8, ptr [[DOTCAPTURE_EXPR_]], align 1
-// CHECK1-NEXT:    [[LOADEDV2:%.*]] = trunc i8 [[TMP18]] to i1
+// CHECK1-NEXT:    [[LOADEDV2:%.*]] = icmp ne i8 [[TMP18]], 0
 // CHECK1-NEXT:    br i1 [[LOADEDV2]], label [[OMP_IF_THEN:%.*]], label [[OMP_IF_ELSE:%.*]]
 // CHECK1:       omp_if.then:
 // CHECK1-NEXT:    [[TMP19:%.*]] = getelementptr inbounds [1 x ptr], ptr [[DOTOFFLOAD_BASEPTRS]], i32 0, i32 0
@@ -935,7 +935,7 @@ int main() {
 // CHECK1-NEXT:    [[DOTCAPTURE_EXPR__CASTED:%.*]] = alloca i64, align 8
 // CHECK1-NEXT:    store i64 [[DOTCAPTURE_EXPR_]], ptr [[DOTCAPTURE_EXPR__ADDR]], align 8
 // CHECK1-NEXT:    [[TMP0:%.*]] = load i8, ptr [[DOTCAPTURE_EXPR__ADDR]], align 1
-// CHECK1-NEXT:    [[LOADEDV:%.*]] = trunc i8 [[TMP0]] to i1
+// CHECK1-NEXT:    [[LOADEDV:%.*]] = icmp ne i8 [[TMP0]], 0
 // CHECK1-NEXT:    [[STOREDV:%.*]] = zext i1 [[LOADEDV]] to i8
 // CHECK1-NEXT:    store i8 [[STOREDV]], ptr [[DOTCAPTURE_EXPR__CASTED]], align 1
 // CHECK1-NEXT:    [[TMP1:%.*]] = load i64, ptr [[DOTCAPTURE_EXPR__CASTED]], align 8

@@ -33,10 +33,10 @@ bool fn1() {
 // CHECK-NEXT:    [[STOREDV:%.*]] = zext i1 [[V]] to i32
 // CHECK-NEXT:    store i32 [[STOREDV]], ptr [[V_ADDR]], align 4
 // CHECK-NEXT:    [[TMP0:%.*]] = load i32, ptr [[V_ADDR]], align 4
-// CHECK-NEXT:    [[LOADEDV:%.*]] = trunc i32 [[TMP0]] to i1
+// CHECK-NEXT:    [[LOADEDV:%.*]] = icmp ne i32 [[TMP0]], 0
 // CHECK-NEXT:    [[VECINIT:%.*]] = insertelement <4 x i1> poison, i1 [[LOADEDV]], i32 0
 // CHECK-NEXT:    [[TMP1:%.*]] = load i32, ptr [[V_ADDR]], align 4
-// CHECK-NEXT:    [[LOADEDV1:%.*]] = trunc i32 [[TMP1]] to i1
+// CHECK-NEXT:    [[LOADEDV1:%.*]] = icmp ne i32 [[TMP1]], 0
 // CHECK-NEXT:    [[VECINIT2:%.*]] = insertelement <4 x i1> [[VECINIT]], i1 [[LOADEDV1]], i32 1
 // CHECK-NEXT:    [[VECINIT3:%.*]] = insertelement <4 x i1> [[VECINIT2]], i1 true, i32 2
 // CHECK-NEXT:    [[VECINIT4:%.*]] = insertelement <4 x i1> [[VECINIT3]], i1 false, i32 3
@@ -118,7 +118,7 @@ void fn5() {
 // CHECK-NEXT:    [[F:%.*]] = getelementptr inbounds nuw [[STRUCT_S]], ptr [[S]], i32 0, i32 1
 // CHECK-NEXT:    store float 1.000000e+00, ptr [[F]], align 1
 // CHECK-NEXT:    [[TMP0:%.*]] = load i32, ptr [[V]], align 4
-// CHECK-NEXT:    [[LOADEDV:%.*]] = trunc i32 [[TMP0]] to i1
+// CHECK-NEXT:    [[LOADEDV:%.*]] = icmp ne i32 [[TMP0]], 0
 // CHECK-NEXT:    [[BM1:%.*]] = getelementptr inbounds nuw [[STRUCT_S]], ptr [[S]], i32 0, i32 0
 // CHECK-NEXT:    [[TMP1:%.*]] = load <4 x i32>, ptr [[BM1]], align 1
 // CHECK-NEXT:    [[TMP2:%.*]] = zext i1 [[LOADEDV]] to i32

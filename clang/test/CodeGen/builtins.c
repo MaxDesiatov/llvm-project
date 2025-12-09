@@ -932,7 +932,7 @@ void test_builtin_bswapg(unsigned char uc, unsigned short us, unsigned int ui,
 #endif
   b = __builtin_bswapg(b);
   // CHECK: %{{.*}} = load i8, ptr %b.addr
-  // CHECK: %{{.*}} = trunc i8 %{{.*}} to i1
+  // CHECK: %{{.*}} = icmp ne i8 %{{.*}}, 0
   // CHECK: %{{.*}} = zext i1 %{{.*}} to i8
   // CHECK: store i8 %{{.*}}, ptr %b.addr
   uc = __builtin_bswapg(uc);

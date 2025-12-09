@@ -75,7 +75,7 @@ void host_dev(int device) {
 // MANDATORY-NEXT:    [[STOREDV:%.*]] = zext i1 [[COND]] to i8
 // MANDATORY-NEXT:    store i8 [[STOREDV]], ptr [[COND_ADDR]], align 1
 // MANDATORY-NEXT:    [[TMP0:%.*]] = load i8, ptr [[COND_ADDR]], align 1
-// MANDATORY-NEXT:    [[LOADEDV:%.*]] = trunc i8 [[TMP0]] to i1
+// MANDATORY-NEXT:    [[LOADEDV:%.*]] = icmp ne i8 [[TMP0]], 0
 // MANDATORY-NEXT:    br i1 [[LOADEDV]], label [[OMP_IF_THEN:%.*]], label [[OMP_IF_ELSE:%.*]]
 // MANDATORY:       omp_if.then:
 // MANDATORY-NEXT:    [[TMP1:%.*]] = getelementptr inbounds nuw [[STRUCT___TGT_KERNEL_ARGUMENTS]], ptr [[KERNEL_ARGS]], i32 0, i32 0

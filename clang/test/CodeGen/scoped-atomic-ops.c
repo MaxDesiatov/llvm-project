@@ -2618,7 +2618,7 @@ void fi3e(int *a, int *b, int *c, int *d, int *e, int *f, int *g, int *h) {
 // AMDGCN_CL_DEF-NEXT:    [[STOREDV:%.*]] = zext i1 [[TMP5]] to i8
 // AMDGCN_CL_DEF-NEXT:    store i8 [[STOREDV]], ptr [[CMPXCHG_BOOL_ASCAST]], align 1
 // AMDGCN_CL_DEF-NEXT:    [[TMP6:%.*]] = load i8, ptr [[CMPXCHG_BOOL_ASCAST]], align 1
-// AMDGCN_CL_DEF-NEXT:    [[LOADEDV:%.*]] = trunc i8 [[TMP6]] to i1
+// AMDGCN_CL_DEF-NEXT:    [[LOADEDV:%.*]] = icmp ne i8 [[TMP6]], 0
 // AMDGCN_CL_DEF-NEXT:    ret i1 [[LOADEDV]]
 //
 // AMDGCN_CL_20-LABEL: define hidden zeroext i1 @fi4a(
@@ -2650,7 +2650,7 @@ void fi3e(int *a, int *b, int *c, int *d, int *e, int *f, int *g, int *h) {
 // AMDGCN_CL_20-NEXT:    [[STOREDV:%.*]] = zext i1 [[TMP6]] to i8
 // AMDGCN_CL_20-NEXT:    store i8 [[STOREDV]], ptr [[CMPXCHG_BOOL_ASCAST]], align 1
 // AMDGCN_CL_20-NEXT:    [[TMP7:%.*]] = load i8, ptr [[CMPXCHG_BOOL_ASCAST]], align 1
-// AMDGCN_CL_20-NEXT:    [[LOADEDV:%.*]] = trunc i8 [[TMP7]] to i1
+// AMDGCN_CL_20-NEXT:    [[LOADEDV:%.*]] = icmp ne i8 [[TMP7]], 0
 // AMDGCN_CL_20-NEXT:    ret i1 [[LOADEDV]]
 //
 // SPIRV-LABEL: define hidden spir_func zeroext i1 @fi4a(
@@ -2677,7 +2677,7 @@ void fi3e(int *a, int *b, int *c, int *d, int *e, int *f, int *g, int *h) {
 // SPIRV-NEXT:    [[STOREDV:%.*]] = zext i1 [[TMP5]] to i8
 // SPIRV-NEXT:    store i8 [[STOREDV]], ptr [[CMPXCHG_BOOL]], align 1
 // SPIRV-NEXT:    [[TMP6:%.*]] = load i8, ptr [[CMPXCHG_BOOL]], align 1
-// SPIRV-NEXT:    [[LOADEDV:%.*]] = trunc i8 [[TMP6]] to i1
+// SPIRV-NEXT:    [[LOADEDV:%.*]] = icmp ne i8 [[TMP6]], 0
 // SPIRV-NEXT:    ret i1 [[LOADEDV]]
 //
 _Bool fi4a(int *i) {
@@ -2718,7 +2718,7 @@ _Bool fi4a(int *i) {
 // AMDGCN_CL_DEF-NEXT:    [[STOREDV:%.*]] = zext i1 [[TMP5]] to i8
 // AMDGCN_CL_DEF-NEXT:    store i8 [[STOREDV]], ptr [[CMPXCHG_BOOL_ASCAST]], align 1
 // AMDGCN_CL_DEF-NEXT:    [[TMP6:%.*]] = load i8, ptr [[CMPXCHG_BOOL_ASCAST]], align 1
-// AMDGCN_CL_DEF-NEXT:    [[LOADEDV:%.*]] = trunc i8 [[TMP6]] to i1
+// AMDGCN_CL_DEF-NEXT:    [[LOADEDV:%.*]] = icmp ne i8 [[TMP6]], 0
 // AMDGCN_CL_DEF-NEXT:    ret i1 [[LOADEDV]]
 //
 // AMDGCN_CL_20-LABEL: define hidden zeroext i1 @fi4b(
@@ -2750,7 +2750,7 @@ _Bool fi4a(int *i) {
 // AMDGCN_CL_20-NEXT:    [[STOREDV:%.*]] = zext i1 [[TMP6]] to i8
 // AMDGCN_CL_20-NEXT:    store i8 [[STOREDV]], ptr [[CMPXCHG_BOOL_ASCAST]], align 1
 // AMDGCN_CL_20-NEXT:    [[TMP7:%.*]] = load i8, ptr [[CMPXCHG_BOOL_ASCAST]], align 1
-// AMDGCN_CL_20-NEXT:    [[LOADEDV:%.*]] = trunc i8 [[TMP7]] to i1
+// AMDGCN_CL_20-NEXT:    [[LOADEDV:%.*]] = icmp ne i8 [[TMP7]], 0
 // AMDGCN_CL_20-NEXT:    ret i1 [[LOADEDV]]
 //
 // SPIRV-LABEL: define hidden spir_func zeroext i1 @fi4b(
@@ -2777,7 +2777,7 @@ _Bool fi4a(int *i) {
 // SPIRV-NEXT:    [[STOREDV:%.*]] = zext i1 [[TMP5]] to i8
 // SPIRV-NEXT:    store i8 [[STOREDV]], ptr [[CMPXCHG_BOOL]], align 1
 // SPIRV-NEXT:    [[TMP6:%.*]] = load i8, ptr [[CMPXCHG_BOOL]], align 1
-// SPIRV-NEXT:    [[LOADEDV:%.*]] = trunc i8 [[TMP6]] to i1
+// SPIRV-NEXT:    [[LOADEDV:%.*]] = icmp ne i8 [[TMP6]], 0
 // SPIRV-NEXT:    ret i1 [[LOADEDV]]
 //
 _Bool fi4b(int *i) {
@@ -2818,7 +2818,7 @@ _Bool fi4b(int *i) {
 // AMDGCN_CL_DEF-NEXT:    [[STOREDV:%.*]] = zext i1 [[TMP5]] to i8
 // AMDGCN_CL_DEF-NEXT:    store i8 [[STOREDV]], ptr [[CMPXCHG_BOOL_ASCAST]], align 1
 // AMDGCN_CL_DEF-NEXT:    [[TMP6:%.*]] = load i8, ptr [[CMPXCHG_BOOL_ASCAST]], align 1
-// AMDGCN_CL_DEF-NEXT:    [[LOADEDV:%.*]] = trunc i8 [[TMP6]] to i1
+// AMDGCN_CL_DEF-NEXT:    [[LOADEDV:%.*]] = icmp ne i8 [[TMP6]], 0
 // AMDGCN_CL_DEF-NEXT:    ret i1 [[LOADEDV]]
 //
 // AMDGCN_CL_20-LABEL: define hidden zeroext i1 @fi4c(
@@ -2850,7 +2850,7 @@ _Bool fi4b(int *i) {
 // AMDGCN_CL_20-NEXT:    [[STOREDV:%.*]] = zext i1 [[TMP6]] to i8
 // AMDGCN_CL_20-NEXT:    store i8 [[STOREDV]], ptr [[CMPXCHG_BOOL_ASCAST]], align 1
 // AMDGCN_CL_20-NEXT:    [[TMP7:%.*]] = load i8, ptr [[CMPXCHG_BOOL_ASCAST]], align 1
-// AMDGCN_CL_20-NEXT:    [[LOADEDV:%.*]] = trunc i8 [[TMP7]] to i1
+// AMDGCN_CL_20-NEXT:    [[LOADEDV:%.*]] = icmp ne i8 [[TMP7]], 0
 // AMDGCN_CL_20-NEXT:    ret i1 [[LOADEDV]]
 //
 // SPIRV-LABEL: define hidden spir_func zeroext i1 @fi4c(
@@ -2877,7 +2877,7 @@ _Bool fi4b(int *i) {
 // SPIRV-NEXT:    [[STOREDV:%.*]] = zext i1 [[TMP5]] to i8
 // SPIRV-NEXT:    store i8 [[STOREDV]], ptr [[CMPXCHG_BOOL]], align 1
 // SPIRV-NEXT:    [[TMP6:%.*]] = load i8, ptr [[CMPXCHG_BOOL]], align 1
-// SPIRV-NEXT:    [[LOADEDV:%.*]] = trunc i8 [[TMP6]] to i1
+// SPIRV-NEXT:    [[LOADEDV:%.*]] = icmp ne i8 [[TMP6]], 0
 // SPIRV-NEXT:    ret i1 [[LOADEDV]]
 //
 _Bool fi4c(int *i) {
@@ -2918,7 +2918,7 @@ _Bool fi4c(int *i) {
 // AMDGCN_CL_DEF-NEXT:    [[STOREDV:%.*]] = zext i1 [[TMP5]] to i8
 // AMDGCN_CL_DEF-NEXT:    store i8 [[STOREDV]], ptr [[CMPXCHG_BOOL_ASCAST]], align 1
 // AMDGCN_CL_DEF-NEXT:    [[TMP6:%.*]] = load i8, ptr [[CMPXCHG_BOOL_ASCAST]], align 1
-// AMDGCN_CL_DEF-NEXT:    [[LOADEDV:%.*]] = trunc i8 [[TMP6]] to i1
+// AMDGCN_CL_DEF-NEXT:    [[LOADEDV:%.*]] = icmp ne i8 [[TMP6]], 0
 // AMDGCN_CL_DEF-NEXT:    ret i1 [[LOADEDV]]
 //
 // AMDGCN_CL_20-LABEL: define hidden zeroext i1 @fi4_clustr(
@@ -2950,7 +2950,7 @@ _Bool fi4c(int *i) {
 // AMDGCN_CL_20-NEXT:    [[STOREDV:%.*]] = zext i1 [[TMP6]] to i8
 // AMDGCN_CL_20-NEXT:    store i8 [[STOREDV]], ptr [[CMPXCHG_BOOL_ASCAST]], align 1
 // AMDGCN_CL_20-NEXT:    [[TMP7:%.*]] = load i8, ptr [[CMPXCHG_BOOL_ASCAST]], align 1
-// AMDGCN_CL_20-NEXT:    [[LOADEDV:%.*]] = trunc i8 [[TMP7]] to i1
+// AMDGCN_CL_20-NEXT:    [[LOADEDV:%.*]] = icmp ne i8 [[TMP7]], 0
 // AMDGCN_CL_20-NEXT:    ret i1 [[LOADEDV]]
 //
 // SPIRV-LABEL: define hidden spir_func zeroext i1 @fi4_clustr(
@@ -2977,7 +2977,7 @@ _Bool fi4c(int *i) {
 // SPIRV-NEXT:    [[STOREDV:%.*]] = zext i1 [[TMP5]] to i8
 // SPIRV-NEXT:    store i8 [[STOREDV]], ptr [[CMPXCHG_BOOL]], align 1
 // SPIRV-NEXT:    [[TMP6:%.*]] = load i8, ptr [[CMPXCHG_BOOL]], align 1
-// SPIRV-NEXT:    [[LOADEDV:%.*]] = trunc i8 [[TMP6]] to i1
+// SPIRV-NEXT:    [[LOADEDV:%.*]] = icmp ne i8 [[TMP6]], 0
 // SPIRV-NEXT:    ret i1 [[LOADEDV]]
 //
 _Bool fi4_clustr(int *i) {
@@ -3018,7 +3018,7 @@ _Bool fi4_clustr(int *i) {
 // AMDGCN_CL_DEF-NEXT:    [[STOREDV:%.*]] = zext i1 [[TMP5]] to i8
 // AMDGCN_CL_DEF-NEXT:    store i8 [[STOREDV]], ptr [[CMPXCHG_BOOL_ASCAST]], align 1
 // AMDGCN_CL_DEF-NEXT:    [[TMP6:%.*]] = load i8, ptr [[CMPXCHG_BOOL_ASCAST]], align 1
-// AMDGCN_CL_DEF-NEXT:    [[LOADEDV:%.*]] = trunc i8 [[TMP6]] to i1
+// AMDGCN_CL_DEF-NEXT:    [[LOADEDV:%.*]] = icmp ne i8 [[TMP6]], 0
 // AMDGCN_CL_DEF-NEXT:    ret i1 [[LOADEDV]]
 //
 // AMDGCN_CL_20-LABEL: define hidden zeroext i1 @fi4d(
@@ -3050,7 +3050,7 @@ _Bool fi4_clustr(int *i) {
 // AMDGCN_CL_20-NEXT:    [[STOREDV:%.*]] = zext i1 [[TMP6]] to i8
 // AMDGCN_CL_20-NEXT:    store i8 [[STOREDV]], ptr [[CMPXCHG_BOOL_ASCAST]], align 1
 // AMDGCN_CL_20-NEXT:    [[TMP7:%.*]] = load i8, ptr [[CMPXCHG_BOOL_ASCAST]], align 1
-// AMDGCN_CL_20-NEXT:    [[LOADEDV:%.*]] = trunc i8 [[TMP7]] to i1
+// AMDGCN_CL_20-NEXT:    [[LOADEDV:%.*]] = icmp ne i8 [[TMP7]], 0
 // AMDGCN_CL_20-NEXT:    ret i1 [[LOADEDV]]
 //
 // SPIRV-LABEL: define hidden spir_func zeroext i1 @fi4d(
@@ -3077,7 +3077,7 @@ _Bool fi4_clustr(int *i) {
 // SPIRV-NEXT:    [[STOREDV:%.*]] = zext i1 [[TMP5]] to i8
 // SPIRV-NEXT:    store i8 [[STOREDV]], ptr [[CMPXCHG_BOOL]], align 1
 // SPIRV-NEXT:    [[TMP6:%.*]] = load i8, ptr [[CMPXCHG_BOOL]], align 1
-// SPIRV-NEXT:    [[LOADEDV:%.*]] = trunc i8 [[TMP6]] to i1
+// SPIRV-NEXT:    [[LOADEDV:%.*]] = icmp ne i8 [[TMP6]], 0
 // SPIRV-NEXT:    ret i1 [[LOADEDV]]
 //
 _Bool fi4d(int *i) {
@@ -3118,7 +3118,7 @@ _Bool fi4d(int *i) {
 // AMDGCN_CL_DEF-NEXT:    [[STOREDV:%.*]] = zext i1 [[TMP5]] to i8
 // AMDGCN_CL_DEF-NEXT:    store i8 [[STOREDV]], ptr [[CMPXCHG_BOOL_ASCAST]], align 1
 // AMDGCN_CL_DEF-NEXT:    [[TMP6:%.*]] = load i8, ptr [[CMPXCHG_BOOL_ASCAST]], align 1
-// AMDGCN_CL_DEF-NEXT:    [[LOADEDV:%.*]] = trunc i8 [[TMP6]] to i1
+// AMDGCN_CL_DEF-NEXT:    [[LOADEDV:%.*]] = icmp ne i8 [[TMP6]], 0
 // AMDGCN_CL_DEF-NEXT:    ret i1 [[LOADEDV]]
 //
 // AMDGCN_CL_20-LABEL: define hidden zeroext i1 @fi4e(
@@ -3150,7 +3150,7 @@ _Bool fi4d(int *i) {
 // AMDGCN_CL_20-NEXT:    [[STOREDV:%.*]] = zext i1 [[TMP6]] to i8
 // AMDGCN_CL_20-NEXT:    store i8 [[STOREDV]], ptr [[CMPXCHG_BOOL_ASCAST]], align 1
 // AMDGCN_CL_20-NEXT:    [[TMP7:%.*]] = load i8, ptr [[CMPXCHG_BOOL_ASCAST]], align 1
-// AMDGCN_CL_20-NEXT:    [[LOADEDV:%.*]] = trunc i8 [[TMP7]] to i1
+// AMDGCN_CL_20-NEXT:    [[LOADEDV:%.*]] = icmp ne i8 [[TMP7]], 0
 // AMDGCN_CL_20-NEXT:    ret i1 [[LOADEDV]]
 //
 // SPIRV-LABEL: define hidden spir_func zeroext i1 @fi4e(
@@ -3177,7 +3177,7 @@ _Bool fi4d(int *i) {
 // SPIRV-NEXT:    [[STOREDV:%.*]] = zext i1 [[TMP5]] to i8
 // SPIRV-NEXT:    store i8 [[STOREDV]], ptr [[CMPXCHG_BOOL]], align 1
 // SPIRV-NEXT:    [[TMP6:%.*]] = load i8, ptr [[CMPXCHG_BOOL]], align 1
-// SPIRV-NEXT:    [[LOADEDV:%.*]] = trunc i8 [[TMP6]] to i1
+// SPIRV-NEXT:    [[LOADEDV:%.*]] = icmp ne i8 [[TMP6]], 0
 // SPIRV-NEXT:    ret i1 [[LOADEDV]]
 //
 _Bool fi4e(int *i) {
@@ -3218,7 +3218,7 @@ _Bool fi4e(int *i) {
 // AMDGCN_CL_DEF-NEXT:    [[STOREDV:%.*]] = zext i1 [[TMP5]] to i8
 // AMDGCN_CL_DEF-NEXT:    store i8 [[STOREDV]], ptr [[CMPXCHG_BOOL_ASCAST]], align 1
 // AMDGCN_CL_DEF-NEXT:    [[TMP6:%.*]] = load i8, ptr [[CMPXCHG_BOOL_ASCAST]], align 1
-// AMDGCN_CL_DEF-NEXT:    [[LOADEDV:%.*]] = trunc i8 [[TMP6]] to i1
+// AMDGCN_CL_DEF-NEXT:    [[LOADEDV:%.*]] = icmp ne i8 [[TMP6]], 0
 // AMDGCN_CL_DEF-NEXT:    ret i1 [[LOADEDV]]
 //
 // AMDGCN_CL_20-LABEL: define hidden zeroext i1 @fi5a(
@@ -3250,7 +3250,7 @@ _Bool fi4e(int *i) {
 // AMDGCN_CL_20-NEXT:    [[STOREDV:%.*]] = zext i1 [[TMP5]] to i8
 // AMDGCN_CL_20-NEXT:    store i8 [[STOREDV]], ptr [[CMPXCHG_BOOL_ASCAST]], align 1
 // AMDGCN_CL_20-NEXT:    [[TMP6:%.*]] = load i8, ptr [[CMPXCHG_BOOL_ASCAST]], align 1
-// AMDGCN_CL_20-NEXT:    [[LOADEDV:%.*]] = trunc i8 [[TMP6]] to i1
+// AMDGCN_CL_20-NEXT:    [[LOADEDV:%.*]] = icmp ne i8 [[TMP6]], 0
 // AMDGCN_CL_20-NEXT:    ret i1 [[LOADEDV]]
 //
 // SPIRV-LABEL: define hidden spir_func zeroext i1 @fi5a(
@@ -3277,7 +3277,7 @@ _Bool fi4e(int *i) {
 // SPIRV-NEXT:    [[STOREDV:%.*]] = zext i1 [[TMP5]] to i8
 // SPIRV-NEXT:    store i8 [[STOREDV]], ptr [[CMPXCHG_BOOL]], align 1
 // SPIRV-NEXT:    [[TMP6:%.*]] = load i8, ptr [[CMPXCHG_BOOL]], align 1
-// SPIRV-NEXT:    [[LOADEDV:%.*]] = trunc i8 [[TMP6]] to i1
+// SPIRV-NEXT:    [[LOADEDV:%.*]] = icmp ne i8 [[TMP6]], 0
 // SPIRV-NEXT:    ret i1 [[LOADEDV]]
 //
 _Bool fi5a(int *i) {
@@ -3317,7 +3317,7 @@ _Bool fi5a(int *i) {
 // AMDGCN_CL_DEF-NEXT:    [[STOREDV:%.*]] = zext i1 [[TMP5]] to i8
 // AMDGCN_CL_DEF-NEXT:    store i8 [[STOREDV]], ptr [[CMPXCHG_BOOL_ASCAST]], align 1
 // AMDGCN_CL_DEF-NEXT:    [[TMP6:%.*]] = load i8, ptr [[CMPXCHG_BOOL_ASCAST]], align 1
-// AMDGCN_CL_DEF-NEXT:    [[LOADEDV:%.*]] = trunc i8 [[TMP6]] to i1
+// AMDGCN_CL_DEF-NEXT:    [[LOADEDV:%.*]] = icmp ne i8 [[TMP6]], 0
 // AMDGCN_CL_DEF-NEXT:    ret i1 [[LOADEDV]]
 //
 // AMDGCN_CL_20-LABEL: define hidden zeroext i1 @fi5b(
@@ -3349,7 +3349,7 @@ _Bool fi5a(int *i) {
 // AMDGCN_CL_20-NEXT:    [[STOREDV:%.*]] = zext i1 [[TMP5]] to i8
 // AMDGCN_CL_20-NEXT:    store i8 [[STOREDV]], ptr [[CMPXCHG_BOOL_ASCAST]], align 1
 // AMDGCN_CL_20-NEXT:    [[TMP6:%.*]] = load i8, ptr [[CMPXCHG_BOOL_ASCAST]], align 1
-// AMDGCN_CL_20-NEXT:    [[LOADEDV:%.*]] = trunc i8 [[TMP6]] to i1
+// AMDGCN_CL_20-NEXT:    [[LOADEDV:%.*]] = icmp ne i8 [[TMP6]], 0
 // AMDGCN_CL_20-NEXT:    ret i1 [[LOADEDV]]
 //
 // SPIRV-LABEL: define hidden spir_func zeroext i1 @fi5b(
@@ -3376,7 +3376,7 @@ _Bool fi5a(int *i) {
 // SPIRV-NEXT:    [[STOREDV:%.*]] = zext i1 [[TMP5]] to i8
 // SPIRV-NEXT:    store i8 [[STOREDV]], ptr [[CMPXCHG_BOOL]], align 1
 // SPIRV-NEXT:    [[TMP6:%.*]] = load i8, ptr [[CMPXCHG_BOOL]], align 1
-// SPIRV-NEXT:    [[LOADEDV:%.*]] = trunc i8 [[TMP6]] to i1
+// SPIRV-NEXT:    [[LOADEDV:%.*]] = icmp ne i8 [[TMP6]], 0
 // SPIRV-NEXT:    ret i1 [[LOADEDV]]
 //
 _Bool fi5b(int *i) {
@@ -3416,7 +3416,7 @@ _Bool fi5b(int *i) {
 // AMDGCN_CL_DEF-NEXT:    [[STOREDV:%.*]] = zext i1 [[TMP5]] to i8
 // AMDGCN_CL_DEF-NEXT:    store i8 [[STOREDV]], ptr [[CMPXCHG_BOOL_ASCAST]], align 1
 // AMDGCN_CL_DEF-NEXT:    [[TMP6:%.*]] = load i8, ptr [[CMPXCHG_BOOL_ASCAST]], align 1
-// AMDGCN_CL_DEF-NEXT:    [[LOADEDV:%.*]] = trunc i8 [[TMP6]] to i1
+// AMDGCN_CL_DEF-NEXT:    [[LOADEDV:%.*]] = icmp ne i8 [[TMP6]], 0
 // AMDGCN_CL_DEF-NEXT:    ret i1 [[LOADEDV]]
 //
 // AMDGCN_CL_20-LABEL: define hidden zeroext i1 @fi5c(
@@ -3448,7 +3448,7 @@ _Bool fi5b(int *i) {
 // AMDGCN_CL_20-NEXT:    [[STOREDV:%.*]] = zext i1 [[TMP5]] to i8
 // AMDGCN_CL_20-NEXT:    store i8 [[STOREDV]], ptr [[CMPXCHG_BOOL_ASCAST]], align 1
 // AMDGCN_CL_20-NEXT:    [[TMP6:%.*]] = load i8, ptr [[CMPXCHG_BOOL_ASCAST]], align 1
-// AMDGCN_CL_20-NEXT:    [[LOADEDV:%.*]] = trunc i8 [[TMP6]] to i1
+// AMDGCN_CL_20-NEXT:    [[LOADEDV:%.*]] = icmp ne i8 [[TMP6]], 0
 // AMDGCN_CL_20-NEXT:    ret i1 [[LOADEDV]]
 //
 // SPIRV-LABEL: define hidden spir_func zeroext i1 @fi5c(
@@ -3475,7 +3475,7 @@ _Bool fi5b(int *i) {
 // SPIRV-NEXT:    [[STOREDV:%.*]] = zext i1 [[TMP5]] to i8
 // SPIRV-NEXT:    store i8 [[STOREDV]], ptr [[CMPXCHG_BOOL]], align 1
 // SPIRV-NEXT:    [[TMP6:%.*]] = load i8, ptr [[CMPXCHG_BOOL]], align 1
-// SPIRV-NEXT:    [[LOADEDV:%.*]] = trunc i8 [[TMP6]] to i1
+// SPIRV-NEXT:    [[LOADEDV:%.*]] = icmp ne i8 [[TMP6]], 0
 // SPIRV-NEXT:    ret i1 [[LOADEDV]]
 //
 _Bool fi5c(int *i) {
@@ -3514,7 +3514,7 @@ _Bool fi5c(int *i) {
 // AMDGCN_CL_DEF-NEXT:    [[STOREDV:%.*]] = zext i1 [[TMP5]] to i8
 // AMDGCN_CL_DEF-NEXT:    store i8 [[STOREDV]], ptr [[CMPXCHG_BOOL_ASCAST]], align 1
 // AMDGCN_CL_DEF-NEXT:    [[TMP6:%.*]] = load i8, ptr [[CMPXCHG_BOOL_ASCAST]], align 1
-// AMDGCN_CL_DEF-NEXT:    [[LOADEDV:%.*]] = trunc i8 [[TMP6]] to i1
+// AMDGCN_CL_DEF-NEXT:    [[LOADEDV:%.*]] = icmp ne i8 [[TMP6]], 0
 // AMDGCN_CL_DEF-NEXT:    ret i1 [[LOADEDV]]
 //
 // AMDGCN_CL_20-LABEL: define hidden zeroext i1 @fi5_clustr(
@@ -3546,7 +3546,7 @@ _Bool fi5c(int *i) {
 // AMDGCN_CL_20-NEXT:    [[STOREDV:%.*]] = zext i1 [[TMP5]] to i8
 // AMDGCN_CL_20-NEXT:    store i8 [[STOREDV]], ptr [[CMPXCHG_BOOL_ASCAST]], align 1
 // AMDGCN_CL_20-NEXT:    [[TMP6:%.*]] = load i8, ptr [[CMPXCHG_BOOL_ASCAST]], align 1
-// AMDGCN_CL_20-NEXT:    [[LOADEDV:%.*]] = trunc i8 [[TMP6]] to i1
+// AMDGCN_CL_20-NEXT:    [[LOADEDV:%.*]] = icmp ne i8 [[TMP6]], 0
 // AMDGCN_CL_20-NEXT:    ret i1 [[LOADEDV]]
 //
 // SPIRV-LABEL: define hidden spir_func zeroext i1 @fi5_clustr(
@@ -3573,7 +3573,7 @@ _Bool fi5c(int *i) {
 // SPIRV-NEXT:    [[STOREDV:%.*]] = zext i1 [[TMP5]] to i8
 // SPIRV-NEXT:    store i8 [[STOREDV]], ptr [[CMPXCHG_BOOL]], align 1
 // SPIRV-NEXT:    [[TMP6:%.*]] = load i8, ptr [[CMPXCHG_BOOL]], align 1
-// SPIRV-NEXT:    [[LOADEDV:%.*]] = trunc i8 [[TMP6]] to i1
+// SPIRV-NEXT:    [[LOADEDV:%.*]] = icmp ne i8 [[TMP6]], 0
 // SPIRV-NEXT:    ret i1 [[LOADEDV]]
 //
 _Bool fi5_clustr(int *i) {
@@ -3612,7 +3612,7 @@ _Bool fi5_clustr(int *i) {
 // AMDGCN_CL_DEF-NEXT:    [[STOREDV:%.*]] = zext i1 [[TMP5]] to i8
 // AMDGCN_CL_DEF-NEXT:    store i8 [[STOREDV]], ptr [[CMPXCHG_BOOL_ASCAST]], align 1
 // AMDGCN_CL_DEF-NEXT:    [[TMP6:%.*]] = load i8, ptr [[CMPXCHG_BOOL_ASCAST]], align 1
-// AMDGCN_CL_DEF-NEXT:    [[LOADEDV:%.*]] = trunc i8 [[TMP6]] to i1
+// AMDGCN_CL_DEF-NEXT:    [[LOADEDV:%.*]] = icmp ne i8 [[TMP6]], 0
 // AMDGCN_CL_DEF-NEXT:    ret i1 [[LOADEDV]]
 //
 // AMDGCN_CL_20-LABEL: define hidden zeroext i1 @fi5d(
@@ -3644,7 +3644,7 @@ _Bool fi5_clustr(int *i) {
 // AMDGCN_CL_20-NEXT:    [[STOREDV:%.*]] = zext i1 [[TMP5]] to i8
 // AMDGCN_CL_20-NEXT:    store i8 [[STOREDV]], ptr [[CMPXCHG_BOOL_ASCAST]], align 1
 // AMDGCN_CL_20-NEXT:    [[TMP6:%.*]] = load i8, ptr [[CMPXCHG_BOOL_ASCAST]], align 1
-// AMDGCN_CL_20-NEXT:    [[LOADEDV:%.*]] = trunc i8 [[TMP6]] to i1
+// AMDGCN_CL_20-NEXT:    [[LOADEDV:%.*]] = icmp ne i8 [[TMP6]], 0
 // AMDGCN_CL_20-NEXT:    ret i1 [[LOADEDV]]
 //
 // SPIRV-LABEL: define hidden spir_func zeroext i1 @fi5d(
@@ -3671,7 +3671,7 @@ _Bool fi5_clustr(int *i) {
 // SPIRV-NEXT:    [[STOREDV:%.*]] = zext i1 [[TMP5]] to i8
 // SPIRV-NEXT:    store i8 [[STOREDV]], ptr [[CMPXCHG_BOOL]], align 1
 // SPIRV-NEXT:    [[TMP6:%.*]] = load i8, ptr [[CMPXCHG_BOOL]], align 1
-// SPIRV-NEXT:    [[LOADEDV:%.*]] = trunc i8 [[TMP6]] to i1
+// SPIRV-NEXT:    [[LOADEDV:%.*]] = icmp ne i8 [[TMP6]], 0
 // SPIRV-NEXT:    ret i1 [[LOADEDV]]
 //
 _Bool fi5d(int *i) {
@@ -3710,7 +3710,7 @@ _Bool fi5d(int *i) {
 // AMDGCN_CL_DEF-NEXT:    [[STOREDV:%.*]] = zext i1 [[TMP5]] to i8
 // AMDGCN_CL_DEF-NEXT:    store i8 [[STOREDV]], ptr [[CMPXCHG_BOOL_ASCAST]], align 1
 // AMDGCN_CL_DEF-NEXT:    [[TMP6:%.*]] = load i8, ptr [[CMPXCHG_BOOL_ASCAST]], align 1
-// AMDGCN_CL_DEF-NEXT:    [[LOADEDV:%.*]] = trunc i8 [[TMP6]] to i1
+// AMDGCN_CL_DEF-NEXT:    [[LOADEDV:%.*]] = icmp ne i8 [[TMP6]], 0
 // AMDGCN_CL_DEF-NEXT:    ret i1 [[LOADEDV]]
 //
 // AMDGCN_CL_20-LABEL: define hidden zeroext i1 @fi5e(
@@ -3742,7 +3742,7 @@ _Bool fi5d(int *i) {
 // AMDGCN_CL_20-NEXT:    [[STOREDV:%.*]] = zext i1 [[TMP5]] to i8
 // AMDGCN_CL_20-NEXT:    store i8 [[STOREDV]], ptr [[CMPXCHG_BOOL_ASCAST]], align 1
 // AMDGCN_CL_20-NEXT:    [[TMP6:%.*]] = load i8, ptr [[CMPXCHG_BOOL_ASCAST]], align 1
-// AMDGCN_CL_20-NEXT:    [[LOADEDV:%.*]] = trunc i8 [[TMP6]] to i1
+// AMDGCN_CL_20-NEXT:    [[LOADEDV:%.*]] = icmp ne i8 [[TMP6]], 0
 // AMDGCN_CL_20-NEXT:    ret i1 [[LOADEDV]]
 //
 // SPIRV-LABEL: define hidden spir_func zeroext i1 @fi5e(
@@ -3769,7 +3769,7 @@ _Bool fi5d(int *i) {
 // SPIRV-NEXT:    [[STOREDV:%.*]] = zext i1 [[TMP5]] to i8
 // SPIRV-NEXT:    store i8 [[STOREDV]], ptr [[CMPXCHG_BOOL]], align 1
 // SPIRV-NEXT:    [[TMP6:%.*]] = load i8, ptr [[CMPXCHG_BOOL]], align 1
-// SPIRV-NEXT:    [[LOADEDV:%.*]] = trunc i8 [[TMP6]] to i1
+// SPIRV-NEXT:    [[LOADEDV:%.*]] = icmp ne i8 [[TMP6]], 0
 // SPIRV-NEXT:    ret i1 [[LOADEDV]]
 //
 _Bool fi5e(int *i) {
@@ -4180,7 +4180,7 @@ int fi6e(int *c, int *d) {
 // AMDGCN_CL_DEF-NEXT:    [[TMP2:%.*]] = atomicrmw xchg ptr [[TMP0]], i8 [[TMP1]] monotonic, align 1, !amdgpu.no.fine.grained.memory [[META3]], !amdgpu.no.remote.memory [[META3]]
 // AMDGCN_CL_DEF-NEXT:    store i8 [[TMP2]], ptr [[ATOMIC_TEMP_ASCAST]], align 1
 // AMDGCN_CL_DEF-NEXT:    [[TMP3:%.*]] = load i8, ptr [[ATOMIC_TEMP_ASCAST]], align 1
-// AMDGCN_CL_DEF-NEXT:    [[LOADEDV:%.*]] = trunc i8 [[TMP3]] to i1
+// AMDGCN_CL_DEF-NEXT:    [[LOADEDV:%.*]] = icmp ne i8 [[TMP3]], 0
 // AMDGCN_CL_DEF-NEXT:    ret i1 [[LOADEDV]]
 //
 // AMDGCN_CL_20-LABEL: define hidden zeroext i1 @fi7a(
@@ -4201,7 +4201,7 @@ int fi6e(int *c, int *d) {
 // AMDGCN_CL_20-NEXT:    [[TMP2:%.*]] = atomicrmw xchg ptr [[TMP0]], i8 [[TMP1]] monotonic, align 1, !amdgpu.no.fine.grained.memory [[META4]], !amdgpu.no.remote.memory [[META4]]
 // AMDGCN_CL_20-NEXT:    store i8 [[TMP2]], ptr [[ATOMIC_TEMP_ASCAST]], align 1
 // AMDGCN_CL_20-NEXT:    [[TMP3:%.*]] = load i8, ptr [[ATOMIC_TEMP_ASCAST]], align 1
-// AMDGCN_CL_20-NEXT:    [[LOADEDV:%.*]] = trunc i8 [[TMP3]] to i1
+// AMDGCN_CL_20-NEXT:    [[LOADEDV:%.*]] = icmp ne i8 [[TMP3]], 0
 // AMDGCN_CL_20-NEXT:    ret i1 [[LOADEDV]]
 //
 // SPIRV-LABEL: define hidden spir_func zeroext i1 @fi7a(
@@ -4217,7 +4217,7 @@ int fi6e(int *c, int *d) {
 // SPIRV-NEXT:    [[TMP2:%.*]] = atomicrmw xchg ptr [[TMP0]], i8 [[TMP1]] monotonic, align 1
 // SPIRV-NEXT:    store i8 [[TMP2]], ptr [[ATOMIC_TEMP]], align 1
 // SPIRV-NEXT:    [[TMP3:%.*]] = load i8, ptr [[ATOMIC_TEMP]], align 1
-// SPIRV-NEXT:    [[LOADEDV:%.*]] = trunc i8 [[TMP3]] to i1
+// SPIRV-NEXT:    [[LOADEDV:%.*]] = icmp ne i8 [[TMP3]], 0
 // SPIRV-NEXT:    ret i1 [[LOADEDV]]
 //
 _Bool fi7a(_Bool *c) {
@@ -4243,7 +4243,7 @@ _Bool fi7a(_Bool *c) {
 // AMDGCN_CL_DEF-NEXT:    [[TMP2:%.*]] = atomicrmw xchg ptr [[TMP0]], i8 [[TMP1]] syncscope("agent") monotonic, align 1, !amdgpu.no.fine.grained.memory [[META3]], !amdgpu.no.remote.memory [[META3]]
 // AMDGCN_CL_DEF-NEXT:    store i8 [[TMP2]], ptr [[ATOMIC_TEMP_ASCAST]], align 1
 // AMDGCN_CL_DEF-NEXT:    [[TMP3:%.*]] = load i8, ptr [[ATOMIC_TEMP_ASCAST]], align 1
-// AMDGCN_CL_DEF-NEXT:    [[LOADEDV:%.*]] = trunc i8 [[TMP3]] to i1
+// AMDGCN_CL_DEF-NEXT:    [[LOADEDV:%.*]] = icmp ne i8 [[TMP3]], 0
 // AMDGCN_CL_DEF-NEXT:    ret i1 [[LOADEDV]]
 //
 // AMDGCN_CL_20-LABEL: define hidden zeroext i1 @fi7b(
@@ -4264,7 +4264,7 @@ _Bool fi7a(_Bool *c) {
 // AMDGCN_CL_20-NEXT:    [[TMP2:%.*]] = atomicrmw xchg ptr [[TMP0]], i8 [[TMP1]] syncscope("agent") monotonic, align 1, !amdgpu.no.fine.grained.memory [[META4]], !amdgpu.no.remote.memory [[META4]]
 // AMDGCN_CL_20-NEXT:    store i8 [[TMP2]], ptr [[ATOMIC_TEMP_ASCAST]], align 1
 // AMDGCN_CL_20-NEXT:    [[TMP3:%.*]] = load i8, ptr [[ATOMIC_TEMP_ASCAST]], align 1
-// AMDGCN_CL_20-NEXT:    [[LOADEDV:%.*]] = trunc i8 [[TMP3]] to i1
+// AMDGCN_CL_20-NEXT:    [[LOADEDV:%.*]] = icmp ne i8 [[TMP3]], 0
 // AMDGCN_CL_20-NEXT:    ret i1 [[LOADEDV]]
 //
 // SPIRV-LABEL: define hidden spir_func zeroext i1 @fi7b(
@@ -4280,7 +4280,7 @@ _Bool fi7a(_Bool *c) {
 // SPIRV-NEXT:    [[TMP2:%.*]] = atomicrmw xchg ptr [[TMP0]], i8 [[TMP1]] syncscope("device") monotonic, align 1
 // SPIRV-NEXT:    store i8 [[TMP2]], ptr [[ATOMIC_TEMP]], align 1
 // SPIRV-NEXT:    [[TMP3:%.*]] = load i8, ptr [[ATOMIC_TEMP]], align 1
-// SPIRV-NEXT:    [[LOADEDV:%.*]] = trunc i8 [[TMP3]] to i1
+// SPIRV-NEXT:    [[LOADEDV:%.*]] = icmp ne i8 [[TMP3]], 0
 // SPIRV-NEXT:    ret i1 [[LOADEDV]]
 //
 _Bool fi7b(_Bool *c) {
@@ -4306,7 +4306,7 @@ _Bool fi7b(_Bool *c) {
 // AMDGCN_CL_DEF-NEXT:    [[TMP2:%.*]] = atomicrmw xchg ptr [[TMP0]], i8 [[TMP1]] syncscope("workgroup") monotonic, align 1, !amdgpu.no.fine.grained.memory [[META3]], !amdgpu.no.remote.memory [[META3]]
 // AMDGCN_CL_DEF-NEXT:    store i8 [[TMP2]], ptr [[ATOMIC_TEMP_ASCAST]], align 1
 // AMDGCN_CL_DEF-NEXT:    [[TMP3:%.*]] = load i8, ptr [[ATOMIC_TEMP_ASCAST]], align 1
-// AMDGCN_CL_DEF-NEXT:    [[LOADEDV:%.*]] = trunc i8 [[TMP3]] to i1
+// AMDGCN_CL_DEF-NEXT:    [[LOADEDV:%.*]] = icmp ne i8 [[TMP3]], 0
 // AMDGCN_CL_DEF-NEXT:    ret i1 [[LOADEDV]]
 //
 // AMDGCN_CL_20-LABEL: define hidden zeroext i1 @fi7c(
@@ -4327,7 +4327,7 @@ _Bool fi7b(_Bool *c) {
 // AMDGCN_CL_20-NEXT:    [[TMP2:%.*]] = atomicrmw xchg ptr [[TMP0]], i8 [[TMP1]] syncscope("workgroup") monotonic, align 1, !amdgpu.no.fine.grained.memory [[META4]], !amdgpu.no.remote.memory [[META4]]
 // AMDGCN_CL_20-NEXT:    store i8 [[TMP2]], ptr [[ATOMIC_TEMP_ASCAST]], align 1
 // AMDGCN_CL_20-NEXT:    [[TMP3:%.*]] = load i8, ptr [[ATOMIC_TEMP_ASCAST]], align 1
-// AMDGCN_CL_20-NEXT:    [[LOADEDV:%.*]] = trunc i8 [[TMP3]] to i1
+// AMDGCN_CL_20-NEXT:    [[LOADEDV:%.*]] = icmp ne i8 [[TMP3]], 0
 // AMDGCN_CL_20-NEXT:    ret i1 [[LOADEDV]]
 //
 // SPIRV-LABEL: define hidden spir_func zeroext i1 @fi7c(
@@ -4343,7 +4343,7 @@ _Bool fi7b(_Bool *c) {
 // SPIRV-NEXT:    [[TMP2:%.*]] = atomicrmw xchg ptr [[TMP0]], i8 [[TMP1]] syncscope("workgroup") monotonic, align 1
 // SPIRV-NEXT:    store i8 [[TMP2]], ptr [[ATOMIC_TEMP]], align 1
 // SPIRV-NEXT:    [[TMP3:%.*]] = load i8, ptr [[ATOMIC_TEMP]], align 1
-// SPIRV-NEXT:    [[LOADEDV:%.*]] = trunc i8 [[TMP3]] to i1
+// SPIRV-NEXT:    [[LOADEDV:%.*]] = icmp ne i8 [[TMP3]], 0
 // SPIRV-NEXT:    ret i1 [[LOADEDV]]
 //
 _Bool fi7c(_Bool *c) {
@@ -4369,7 +4369,7 @@ _Bool fi7c(_Bool *c) {
 // AMDGCN_CL_DEF-NEXT:    [[TMP2:%.*]] = atomicrmw xchg ptr [[TMP0]], i8 [[TMP1]] syncscope("cluster") monotonic, align 1, !amdgpu.no.fine.grained.memory [[META3]], !amdgpu.no.remote.memory [[META3]]
 // AMDGCN_CL_DEF-NEXT:    store i8 [[TMP2]], ptr [[ATOMIC_TEMP_ASCAST]], align 1
 // AMDGCN_CL_DEF-NEXT:    [[TMP3:%.*]] = load i8, ptr [[ATOMIC_TEMP_ASCAST]], align 1
-// AMDGCN_CL_DEF-NEXT:    [[LOADEDV:%.*]] = trunc i8 [[TMP3]] to i1
+// AMDGCN_CL_DEF-NEXT:    [[LOADEDV:%.*]] = icmp ne i8 [[TMP3]], 0
 // AMDGCN_CL_DEF-NEXT:    ret i1 [[LOADEDV]]
 //
 // AMDGCN_CL_20-LABEL: define hidden zeroext i1 @fi7_clustr(
@@ -4390,7 +4390,7 @@ _Bool fi7c(_Bool *c) {
 // AMDGCN_CL_20-NEXT:    [[TMP2:%.*]] = atomicrmw xchg ptr [[TMP0]], i8 [[TMP1]] syncscope("cluster") monotonic, align 1, !amdgpu.no.fine.grained.memory [[META4]], !amdgpu.no.remote.memory [[META4]]
 // AMDGCN_CL_20-NEXT:    store i8 [[TMP2]], ptr [[ATOMIC_TEMP_ASCAST]], align 1
 // AMDGCN_CL_20-NEXT:    [[TMP3:%.*]] = load i8, ptr [[ATOMIC_TEMP_ASCAST]], align 1
-// AMDGCN_CL_20-NEXT:    [[LOADEDV:%.*]] = trunc i8 [[TMP3]] to i1
+// AMDGCN_CL_20-NEXT:    [[LOADEDV:%.*]] = icmp ne i8 [[TMP3]], 0
 // AMDGCN_CL_20-NEXT:    ret i1 [[LOADEDV]]
 //
 // SPIRV-LABEL: define hidden spir_func zeroext i1 @fi7_clustr(
@@ -4406,7 +4406,7 @@ _Bool fi7c(_Bool *c) {
 // SPIRV-NEXT:    [[TMP2:%.*]] = atomicrmw xchg ptr [[TMP0]], i8 [[TMP1]] syncscope("workgroup") monotonic, align 1
 // SPIRV-NEXT:    store i8 [[TMP2]], ptr [[ATOMIC_TEMP]], align 1
 // SPIRV-NEXT:    [[TMP3:%.*]] = load i8, ptr [[ATOMIC_TEMP]], align 1
-// SPIRV-NEXT:    [[LOADEDV:%.*]] = trunc i8 [[TMP3]] to i1
+// SPIRV-NEXT:    [[LOADEDV:%.*]] = icmp ne i8 [[TMP3]], 0
 // SPIRV-NEXT:    ret i1 [[LOADEDV]]
 //
 _Bool fi7_clustr(_Bool *c) {
@@ -4432,7 +4432,7 @@ _Bool fi7_clustr(_Bool *c) {
 // AMDGCN_CL_DEF-NEXT:    [[TMP2:%.*]] = atomicrmw xchg ptr [[TMP0]], i8 [[TMP1]] syncscope("wavefront") monotonic, align 1, !amdgpu.no.fine.grained.memory [[META3]], !amdgpu.no.remote.memory [[META3]]
 // AMDGCN_CL_DEF-NEXT:    store i8 [[TMP2]], ptr [[ATOMIC_TEMP_ASCAST]], align 1
 // AMDGCN_CL_DEF-NEXT:    [[TMP3:%.*]] = load i8, ptr [[ATOMIC_TEMP_ASCAST]], align 1
-// AMDGCN_CL_DEF-NEXT:    [[LOADEDV:%.*]] = trunc i8 [[TMP3]] to i1
+// AMDGCN_CL_DEF-NEXT:    [[LOADEDV:%.*]] = icmp ne i8 [[TMP3]], 0
 // AMDGCN_CL_DEF-NEXT:    ret i1 [[LOADEDV]]
 //
 // AMDGCN_CL_20-LABEL: define hidden zeroext i1 @fi7d(
@@ -4453,7 +4453,7 @@ _Bool fi7_clustr(_Bool *c) {
 // AMDGCN_CL_20-NEXT:    [[TMP2:%.*]] = atomicrmw xchg ptr [[TMP0]], i8 [[TMP1]] syncscope("wavefront") monotonic, align 1, !amdgpu.no.fine.grained.memory [[META4]], !amdgpu.no.remote.memory [[META4]]
 // AMDGCN_CL_20-NEXT:    store i8 [[TMP2]], ptr [[ATOMIC_TEMP_ASCAST]], align 1
 // AMDGCN_CL_20-NEXT:    [[TMP3:%.*]] = load i8, ptr [[ATOMIC_TEMP_ASCAST]], align 1
-// AMDGCN_CL_20-NEXT:    [[LOADEDV:%.*]] = trunc i8 [[TMP3]] to i1
+// AMDGCN_CL_20-NEXT:    [[LOADEDV:%.*]] = icmp ne i8 [[TMP3]], 0
 // AMDGCN_CL_20-NEXT:    ret i1 [[LOADEDV]]
 //
 // SPIRV-LABEL: define hidden spir_func zeroext i1 @fi7d(
@@ -4469,7 +4469,7 @@ _Bool fi7_clustr(_Bool *c) {
 // SPIRV-NEXT:    [[TMP2:%.*]] = atomicrmw xchg ptr [[TMP0]], i8 [[TMP1]] syncscope("subgroup") monotonic, align 1
 // SPIRV-NEXT:    store i8 [[TMP2]], ptr [[ATOMIC_TEMP]], align 1
 // SPIRV-NEXT:    [[TMP3:%.*]] = load i8, ptr [[ATOMIC_TEMP]], align 1
-// SPIRV-NEXT:    [[LOADEDV:%.*]] = trunc i8 [[TMP3]] to i1
+// SPIRV-NEXT:    [[LOADEDV:%.*]] = icmp ne i8 [[TMP3]], 0
 // SPIRV-NEXT:    ret i1 [[LOADEDV]]
 //
 _Bool fi7d(_Bool *c) {
@@ -4495,7 +4495,7 @@ _Bool fi7d(_Bool *c) {
 // AMDGCN_CL_DEF-NEXT:    [[TMP2:%.*]] = atomicrmw xchg ptr [[TMP0]], i8 [[TMP1]] syncscope("singlethread") monotonic, align 1, !amdgpu.no.fine.grained.memory [[META3]], !amdgpu.no.remote.memory [[META3]]
 // AMDGCN_CL_DEF-NEXT:    store i8 [[TMP2]], ptr [[ATOMIC_TEMP_ASCAST]], align 1
 // AMDGCN_CL_DEF-NEXT:    [[TMP3:%.*]] = load i8, ptr [[ATOMIC_TEMP_ASCAST]], align 1
-// AMDGCN_CL_DEF-NEXT:    [[LOADEDV:%.*]] = trunc i8 [[TMP3]] to i1
+// AMDGCN_CL_DEF-NEXT:    [[LOADEDV:%.*]] = icmp ne i8 [[TMP3]], 0
 // AMDGCN_CL_DEF-NEXT:    ret i1 [[LOADEDV]]
 //
 // AMDGCN_CL_20-LABEL: define hidden zeroext i1 @fi7e(
@@ -4516,7 +4516,7 @@ _Bool fi7d(_Bool *c) {
 // AMDGCN_CL_20-NEXT:    [[TMP2:%.*]] = atomicrmw xchg ptr [[TMP0]], i8 [[TMP1]] syncscope("singlethread") monotonic, align 1, !amdgpu.no.fine.grained.memory [[META4]], !amdgpu.no.remote.memory [[META4]]
 // AMDGCN_CL_20-NEXT:    store i8 [[TMP2]], ptr [[ATOMIC_TEMP_ASCAST]], align 1
 // AMDGCN_CL_20-NEXT:    [[TMP3:%.*]] = load i8, ptr [[ATOMIC_TEMP_ASCAST]], align 1
-// AMDGCN_CL_20-NEXT:    [[LOADEDV:%.*]] = trunc i8 [[TMP3]] to i1
+// AMDGCN_CL_20-NEXT:    [[LOADEDV:%.*]] = icmp ne i8 [[TMP3]], 0
 // AMDGCN_CL_20-NEXT:    ret i1 [[LOADEDV]]
 //
 // SPIRV-LABEL: define hidden spir_func zeroext i1 @fi7e(
@@ -4532,7 +4532,7 @@ _Bool fi7d(_Bool *c) {
 // SPIRV-NEXT:    [[TMP2:%.*]] = atomicrmw xchg ptr [[TMP0]], i8 [[TMP1]] syncscope("singlethread") monotonic, align 1
 // SPIRV-NEXT:    store i8 [[TMP2]], ptr [[ATOMIC_TEMP]], align 1
 // SPIRV-NEXT:    [[TMP3:%.*]] = load i8, ptr [[ATOMIC_TEMP]], align 1
-// SPIRV-NEXT:    [[LOADEDV:%.*]] = trunc i8 [[TMP3]] to i1
+// SPIRV-NEXT:    [[LOADEDV:%.*]] = icmp ne i8 [[TMP3]], 0
 // SPIRV-NEXT:    ret i1 [[LOADEDV]]
 //
 _Bool fi7e(_Bool *c) {

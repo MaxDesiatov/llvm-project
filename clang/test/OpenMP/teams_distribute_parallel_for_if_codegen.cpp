@@ -567,7 +567,7 @@ int main() {
 // CHECK1-NEXT:    [[STOREDV:%.*]] = zext i1 [[TOBOOL]] to i8
 // CHECK1-NEXT:    store i8 [[STOREDV]], ptr [[DOTCAPTURE_EXPR_]], align 1
 // CHECK1-NEXT:    [[TMP38:%.*]] = load i8, ptr [[DOTCAPTURE_EXPR_]], align 1
-// CHECK1-NEXT:    [[LOADEDV:%.*]] = trunc i8 [[TMP38]] to i1
+// CHECK1-NEXT:    [[LOADEDV:%.*]] = icmp ne i8 [[TMP38]], 0
 // CHECK1-NEXT:    [[TMP39:%.*]] = select i1 [[LOADEDV]], i32 0, i32 1
 // CHECK1-NEXT:    [[TMP40:%.*]] = insertvalue [3 x i32] zeroinitializer, i32 [[TMP39]], 0
 // CHECK1-NEXT:    [[TMP41:%.*]] = getelementptr inbounds nuw [[STRUCT___TGT_KERNEL_ARGUMENTS]], ptr [[KERNEL_ARGS6]], i32 0, i32 0
@@ -901,7 +901,7 @@ int main() {
 // CHECK1-NEXT:    [[STOREDV:%.*]] = zext i1 [[TOBOOL]] to i8
 // CHECK1-NEXT:    store i8 [[STOREDV]], ptr [[DOTCAPTURE_EXPR_]], align 1
 // CHECK1-NEXT:    [[TMP1:%.*]] = load i8, ptr [[DOTCAPTURE_EXPR_]], align 1
-// CHECK1-NEXT:    [[LOADEDV:%.*]] = trunc i8 [[TMP1]] to i1
+// CHECK1-NEXT:    [[LOADEDV:%.*]] = icmp ne i8 [[TMP1]], 0
 // CHECK1-NEXT:    [[STOREDV1:%.*]] = zext i1 [[LOADEDV]] to i8
 // CHECK1-NEXT:    store i8 [[STOREDV1]], ptr [[DOTCAPTURE_EXPR__CASTED]], align 1
 // CHECK1-NEXT:    [[TMP2:%.*]] = load i64, ptr [[DOTCAPTURE_EXPR__CASTED]], align 8
@@ -958,7 +958,7 @@ int main() {
 // CHECK1-NEXT:    [[TMP9:%.*]] = load i32, ptr [[DOTOMP_COMB_UB]], align 4
 // CHECK1-NEXT:    [[TMP10:%.*]] = zext i32 [[TMP9]] to i64
 // CHECK1-NEXT:    [[TMP11:%.*]] = load i8, ptr [[DOTCAPTURE_EXPR__ADDR]], align 1
-// CHECK1-NEXT:    [[LOADEDV:%.*]] = trunc i8 [[TMP11]] to i1
+// CHECK1-NEXT:    [[LOADEDV:%.*]] = icmp ne i8 [[TMP11]], 0
 // CHECK1-NEXT:    br i1 [[LOADEDV]], label [[OMP_IF_THEN:%.*]], label [[OMP_IF_ELSE:%.*]]
 // CHECK1:       omp_if.then:
 // CHECK1-NEXT:    call void (ptr, i32, ptr, ...) @__kmpc_fork_call(ptr @[[GLOB3]], i32 2, ptr @{{__omp_offloading_[0-9a-z]+_[0-9a-z]+}}_main_l97.omp_outlined.omp_outlined, i64 [[TMP8]], i64 [[TMP10]])
@@ -1154,7 +1154,7 @@ int main() {
 // CHECK1-NEXT:    [[STOREDV:%.*]] = zext i1 [[TOBOOL]] to i8
 // CHECK1-NEXT:    store i8 [[STOREDV]], ptr [[DOTCAPTURE_EXPR_]], align 1
 // CHECK1-NEXT:    [[TMP38:%.*]] = load i8, ptr [[DOTCAPTURE_EXPR_]], align 1
-// CHECK1-NEXT:    [[LOADEDV:%.*]] = trunc i8 [[TMP38]] to i1
+// CHECK1-NEXT:    [[LOADEDV:%.*]] = icmp ne i8 [[TMP38]], 0
 // CHECK1-NEXT:    [[TMP39:%.*]] = select i1 [[LOADEDV]], i32 0, i32 1
 // CHECK1-NEXT:    [[TMP40:%.*]] = insertvalue [3 x i32] zeroinitializer, i32 [[TMP39]], 0
 // CHECK1-NEXT:    [[TMP41:%.*]] = getelementptr inbounds nuw [[STRUCT___TGT_KERNEL_ARGUMENTS]], ptr [[KERNEL_ARGS6]], i32 0, i32 0
@@ -1486,7 +1486,7 @@ int main() {
 // CHECK1-NEXT:    [[STOREDV:%.*]] = zext i1 [[TOBOOL]] to i8
 // CHECK1-NEXT:    store i8 [[STOREDV]], ptr [[DOTCAPTURE_EXPR_]], align 1
 // CHECK1-NEXT:    [[TMP1:%.*]] = load i8, ptr [[DOTCAPTURE_EXPR_]], align 1
-// CHECK1-NEXT:    [[LOADEDV:%.*]] = trunc i8 [[TMP1]] to i1
+// CHECK1-NEXT:    [[LOADEDV:%.*]] = icmp ne i8 [[TMP1]], 0
 // CHECK1-NEXT:    [[STOREDV1:%.*]] = zext i1 [[LOADEDV]] to i8
 // CHECK1-NEXT:    store i8 [[STOREDV1]], ptr [[DOTCAPTURE_EXPR__CASTED]], align 1
 // CHECK1-NEXT:    [[TMP2:%.*]] = load i64, ptr [[DOTCAPTURE_EXPR__CASTED]], align 8
@@ -1543,7 +1543,7 @@ int main() {
 // CHECK1-NEXT:    [[TMP9:%.*]] = load i32, ptr [[DOTOMP_COMB_UB]], align 4
 // CHECK1-NEXT:    [[TMP10:%.*]] = zext i32 [[TMP9]] to i64
 // CHECK1-NEXT:    [[TMP11:%.*]] = load i8, ptr [[DOTCAPTURE_EXPR__ADDR]], align 1
-// CHECK1-NEXT:    [[LOADEDV:%.*]] = trunc i8 [[TMP11]] to i1
+// CHECK1-NEXT:    [[LOADEDV:%.*]] = icmp ne i8 [[TMP11]], 0
 // CHECK1-NEXT:    br i1 [[LOADEDV]], label [[OMP_IF_THEN:%.*]], label [[OMP_IF_ELSE:%.*]]
 // CHECK1:       omp_if.then:
 // CHECK1-NEXT:    call void (ptr, i32, ptr, ...) @__kmpc_fork_call(ptr @[[GLOB3]], i32 2, ptr @{{__omp_offloading_[0-9a-z]+_[0-9a-z]+}}__Z5tmainIiEiT__l72.omp_outlined.omp_outlined, i64 [[TMP8]], i64 [[TMP10]])

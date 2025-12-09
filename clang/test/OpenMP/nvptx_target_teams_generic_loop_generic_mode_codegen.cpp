@@ -54,7 +54,7 @@ int main(int argc, char **argv) {
 // CHECK1-NEXT:    store i32 [[TMP3]], ptr [[ARGC_CASTED]], align 4
 // CHECK1-NEXT:    [[TMP4:%.*]] = load i64, ptr [[ARGC_CASTED]], align 8
 // CHECK1-NEXT:    [[TMP5:%.*]] = load i8, ptr [[DOTCAPTURE_EXPR__ADDR]], align 1
-// CHECK1-NEXT:    [[TOBOOL:%.*]] = trunc i8 [[TMP5]] to i1
+// CHECK1-NEXT:    [[TOBOOL:%.*]] = icmp ne i8 [[TMP5]], 0
 // CHECK1-NEXT:    [[FROMBOOL:%.*]] = zext i1 [[TOBOOL]] to i8
 // CHECK1-NEXT:    store i8 [[FROMBOOL]], ptr [[DOTCAPTURE_EXPR__CASTED]], align 1
 // CHECK1-NEXT:    [[TMP6:%.*]] = load i64, ptr [[DOTCAPTURE_EXPR__CASTED]], align 8
@@ -187,7 +187,7 @@ int main(int argc, char **argv) {
 // CHECK2-NEXT:    store i32 [[TMP3]], ptr [[ARGC_CASTED]], align 4
 // CHECK2-NEXT:    [[TMP4:%.*]] = load i32, ptr [[ARGC_CASTED]], align 4
 // CHECK2-NEXT:    [[TMP5:%.*]] = load i8, ptr [[DOTCAPTURE_EXPR__ADDR]], align 1
-// CHECK2-NEXT:    [[TOBOOL:%.*]] = trunc i8 [[TMP5]] to i1
+// CHECK2-NEXT:    [[TOBOOL:%.*]] = icmp ne i8 [[TMP5]], 0
 // CHECK2-NEXT:    [[FROMBOOL:%.*]] = zext i1 [[TOBOOL]] to i8
 // CHECK2-NEXT:    store i8 [[FROMBOOL]], ptr [[DOTCAPTURE_EXPR__CASTED]], align 1
 // CHECK2-NEXT:    [[TMP6:%.*]] = load i32, ptr [[DOTCAPTURE_EXPR__CASTED]], align 4
