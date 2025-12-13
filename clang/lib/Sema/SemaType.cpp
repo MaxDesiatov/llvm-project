@@ -44,6 +44,7 @@
 #include "clang/Sema/TemplateInstCallback.h"
 #include "llvm/ADT/ArrayRef.h"
 #include "llvm/ADT/STLForwardCompat.h"
+#include "llvm/ADT/ScopeExit.h"
 #include "llvm/ADT/StringExtras.h"
 #include "llvm/IR/DerivedTypes.h"
 #include "llvm/Support/ErrorHandling.h"
@@ -8631,17 +8632,162 @@ static void HandleNeonVectorTypeAttr(QualType &CurType, const ParsedAttr &Attr,
   CurType = S.Context.getVectorType(CurType, numElts, VecKind);
 }
 
+struct PointerAuthQualifierOptions {
+  PointerAuthenticationMode AuthenticationMode =
+      PointerAuthenticationMode::SignAndAuth;
+  bool IsIsaPointer = false;
+  bool AuthenticatesNullValues = false;
+};
+
+static bool
+checkPointerAuthQualiferOptions(Sema &S, Expr *OptionsExpr,
+                                PointerAuthQualifierOptions &Result) {
+  if (!OptionsExpr)
+    return true;
+  if (OptionsExpr->containsErrors())
+    return false;
+
+  if (OptionsExpr->isValueDependent() || OptionsExpr->isTypeDependent()) {
+    S.Diag(OptionsExpr->getExprLoc(),
+           diag::err_ptrauth_dependent_options_string)
+        << OptionsExpr->getSourceRange();
+    return false;
+  }
+
+  ASTContext &Ctx = S.getASTContext();
+  std::string EvaluatedOptionsBuffer;
+  StringRef OptionsString;
+  const StringLiteral *OptionsLiteral = dyn_cast<StringLiteral>(OptionsExpr);
+  if (OptionsLiteral)
+    OptionsString = OptionsLiteral->getString();
+  else if (auto EvaluatedString = OptionsExpr->tryEvaluateString(Ctx)) {
+    EvaluatedString->swap(EvaluatedOptionsBuffer);
+    OptionsString = EvaluatedOptionsBuffer;
+  } else if (!S.EvaluateAsString(
+                 OptionsExpr, EvaluatedOptionsBuffer, Ctx,
+                 Sema::StringEvaluationContext::PointerAuthOptions,
+                 /*ErrorOnInvalidMessage=*/true))
+    OptionsString = EvaluatedOptionsBuffer;
+  else
+    return false;
+
+  auto Failed = [&](SourceRange Range = {}, unsigned DiagId = 0,
+                    auto... DiagArgs) {
+    if (Range.isValid())
+      (S.Diag(Range.getBegin(), DiagId) << ... << DiagArgs) << Range;
+    if (!OptionsLiteral)
+      S.Diag(OptionsExpr->getExprLoc(), diag::note_ptrauth_evaluated_options)
+          << EvaluatedOptionsBuffer << OptionsExpr->getSourceRange();
+    return false;
+  };
+
+  SmallVector<StringRef, 4> Options;
+  auto ParseString = OptionsString.trim();
+  if (ParseString.empty())
+    return true;
+
+  auto FindDiagnosticRange = [&](auto Token) {
+    if (!OptionsLiteral)
+      return OptionsExpr->getSourceRange();
+    unsigned StartOffset = Token.begin() - OptionsString.begin();
+    unsigned EndOffset = StartOffset + Token.size();
+    SourceLocation StartLoc =
+        S.getLocationOfStringLiteralByte(OptionsLiteral, StartOffset);
+    SourceLocation EndLoc =
+        S.getLocationOfStringLiteralByte(OptionsLiteral, EndOffset);
+    return SourceRange(StartLoc, EndLoc);
+  };
+
+  // Split up the options
+  auto IsOptionCharacter = [](char Ch) {
+    return llvm::isAlpha(Ch) || Ch == '-';
+  };
+  while (!ParseString.empty()) {
+    if (!Options.empty()) {
+      if (ParseString.size() <= 1 || !ParseString.consume_front(','))
+        break;
+      ParseString = ParseString.ltrim();
+    }
+    StringRef Option = ParseString.take_while(IsOptionCharacter);
+    if (Option.empty())
+      break;
+    Options.push_back(Option);
+    ParseString = ParseString.drop_front(Option.size()).ltrim();
+  }
+
+  if (!ParseString.empty()) {
+    StringRef LastOption;
+    if (!Options.empty())
+      LastOption = Options.back();
+    if (StringRef UnexpectedOption = ParseString.take_while(IsOptionCharacter);
+        !UnexpectedOption.empty()) {
+      SourceRange DiagRange = FindDiagnosticRange(UnexpectedOption);
+      return Failed(DiagRange, diag::err_ptrauth_options_parse_error,
+                    /*Expected Comma*/ 3, UnexpectedOption);
+    }
+    unsigned DiagIdx = 2; // unexpected character
+    if (ParseString.starts_with(','))
+      DiagIdx = ParseString.size() == 1;
+    StringRef ErrorToken = ParseString.take_front();
+    SourceRange DiagRange = FindDiagnosticRange(ErrorToken);
+    return Failed(DiagRange, diag::err_ptrauth_options_parse_error, DiagIdx,
+                  ErrorToken, LastOption);
+  }
+
+  StringRef AuthenticationModeOption;
+  StringRef IsIsaPointerOption;
+  StringRef AuthenticatesNullValuesOption;
+  for (StringRef CurrentOption : Options) {
+    StringRef *Storage = nullptr;
+    SourceRange DiagRange = FindDiagnosticRange(CurrentOption);
+    if (authenticationModeFromString(CurrentOption))
+      Storage = &AuthenticationModeOption;
+    else if (CurrentOption == PointerAuthenticationOptionIsaPointer)
+      Storage = &IsIsaPointerOption;
+    else if (CurrentOption ==
+             PointerAuthenticationOptionAuthenticatesNullValues)
+      Storage = &AuthenticatesNullValuesOption;
+    else
+      return Failed(DiagRange, diag::err_ptrauth_unknown_authentication_option,
+                    CurrentOption);
+
+    if (Storage->empty()) {
+      *Storage = CurrentOption;
+      continue;
+    }
+    bool NotAuthenticationMode = !authenticationModeFromString(CurrentOption);
+    Failed(DiagRange.getBegin(),
+           diag::err_ptrauth_repeated_authentication_option,
+           NotAuthenticationMode, CurrentOption, *Storage);
+    if (OptionsLiteral) {
+      SourceRange PreviousRange = FindDiagnosticRange(*Storage);
+      S.Diag(PreviousRange.getBegin(),
+             diag::note_ptrauth_previous_authentication_option)
+          << PreviousRange;
+    }
+    return false;
+  }
+
+  Result.AuthenticationMode =
+      authenticationModeFromString(AuthenticationModeOption)
+          .value_or(PointerAuthenticationMode::SignAndAuth);
+  Result.IsIsaPointer = !IsIsaPointerOption.empty();
+  Result.AuthenticatesNullValues = !AuthenticatesNullValuesOption.empty();
+  return true;
+}
+
 /// Handle the __ptrauth qualifier.
 static void HandlePtrAuthQualifier(ASTContext &Ctx, QualType &T,
                                    const ParsedAttr &Attr, Sema &S) {
-
-  assert((Attr.getNumArgs() > 0 && Attr.getNumArgs() <= 3) &&
-         "__ptrauth qualifier takes between 1 and 3 arguments");
+  assert((Attr.getNumArgs() > 0 && Attr.getNumArgs() <= 4) &&
+         "__ptrauth qualifier takes between 1 and 4 arguments");
   Expr *KeyArg = Attr.getArgAsExpr(0);
   Expr *IsAddressDiscriminatedArg =
       Attr.getNumArgs() >= 2 ? Attr.getArgAsExpr(1) : nullptr;
   Expr *ExtraDiscriminatorArg =
       Attr.getNumArgs() >= 3 ? Attr.getArgAsExpr(2) : nullptr;
+  Expr *AuthenticationOptionsArg =
+      Attr.getNumArgs() >= 4 ? Attr.getArgAsExpr(3) : nullptr;
 
   unsigned Key;
   if (S.checkConstantPointerAuthKey(KeyArg, Key)) {
@@ -8657,11 +8803,9 @@ static void HandlePtrAuthQualifier(ASTContext &Ctx, QualType &T,
                                                    IsAddressDiscriminated);
   IsInvalid |= !S.checkPointerAuthDiscriminatorArg(
       ExtraDiscriminatorArg, PointerAuthDiscArgKind::Extra, ExtraDiscriminator);
-
-  if (IsInvalid) {
-    Attr.setInvalid();
-    return;
-  }
+  PointerAuthQualifierOptions Options;
+  IsInvalid |=
+      !checkPointerAuthQualiferOptions(S, AuthenticationOptionsArg, Options);
 
   if (!T->isSignableType(Ctx) && !T->isDependentType()) {
     S.Diag(Attr.getLoc(), diag::err_ptrauth_qualifier_invalid_target) << T;
@@ -8681,12 +8825,17 @@ static void HandlePtrAuthQualifier(ASTContext &Ctx, QualType &T,
     return;
   }
 
+  if (IsInvalid) {
+    Attr.setInvalid();
+    return;
+  }
+
   assert((!IsAddressDiscriminatedArg || IsAddressDiscriminated <= 1) &&
          "address discriminator arg should be either 0 or 1");
   PointerAuthQualifier Qual = PointerAuthQualifier::Create(
       Key, IsAddressDiscriminated, ExtraDiscriminator,
-      PointerAuthenticationMode::SignAndAuth, /*IsIsaPointer=*/false,
-      /*AuthenticatesNullValues=*/false);
+      Options.AuthenticationMode, Options.IsIsaPointer,
+      Options.AuthenticatesNullValues);
   T = S.Context.getPointerAuthType(T, Qual);
 }
 

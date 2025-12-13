@@ -6021,7 +6021,11 @@ public:
   void ActOnFinishDelayedCXXMethodDeclaration(Scope *S, Decl *Method);
   void ActOnFinishDelayedMemberInitializers(Decl *Record);
 
-  enum class StringEvaluationContext { StaticAssert = 0, Asm = 1 };
+  enum class StringEvaluationContext {
+    StaticAssert = 0,
+    Asm = 1,
+    PointerAuthOptions = 2
+  };
 
   bool EvaluateAsString(Expr *Message, APValue &Result, ASTContext &Ctx,
                         StringEvaluationContext EvalContext,
