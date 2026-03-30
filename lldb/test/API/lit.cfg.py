@@ -258,7 +258,7 @@ if is_configured("llvm_tools_dir"):
     dotest_cmd += ["--env", "LLVM_TOOLS_DIR=" + config.llvm_tools_dir]
 
 # Propagate WebAssembly debugging environment variables.
-for wasm_var in ("WASMKIT", "WASI_SYSROOT", "WASI_RESOURCE_DIR"):
+for wasm_var in ("WASMKIT", "WASI_SYSROOT", "WASI_RESOURCE_DIR", "SWIFT_WASI_RESOURCE_DIR"):
     if wasm_var in os.environ:
         dotest_cmd += ["--env", wasm_var + "=" + os.environ[wasm_var]]
 

@@ -22,6 +22,7 @@
 #include "Plugins/TypeSystem/Clang/TypeSystemClang.h"
 #include "Plugins/TypeSystem/Swift/SwiftDemangle.h"
 #include "Utility/ARM64_DWARF_Registers.h"
+#include "Utility/WasmVirtualRegisters.h"
 #include "lldb/Breakpoint/StoppointCallbackContext.h"
 #include "lldb/Core/Debugger.h"
 #include "lldb/Core/JITSection.h"
@@ -68,6 +69,7 @@
 
 #include "llvm/ADT/StringRef.h"
 #include "llvm/BinaryFormat/Dwarf.h"
+#include "llvm/Object/Wasm.h"
 #include "llvm/Support/raw_ostream.h"
 #include "llvm/Support/Error.h"
 #include "llvm/Support/FormatAdapters.h"
@@ -3105,6 +3107,12 @@ GetAsyncUnwindRegisterNumbers(llvm::Triple::ArchType triple) {
     regnums.pc_regnum = arm64_dwarf::pc;
     return regnums;
   }
+  case llvm::Triple::wasm32: {
+    AsyncUnwindRegisterNumbers regnums;
+    regnums.async_ctx_regnum = GetWasmRegister(eWasmTagLocal, 0);
+    regnums.pc_regnum = 0;
+    return regnums;
+  }
   default:
     return {};
   }
@@ -3121,7 +3129,7 @@ lldb::addr_t SwiftLanguageRuntime::GetAsyncContext(RegisterContext *regctx) {
     return regctx->ReadRegisterAsUnsigned(reg, LLDB_INVALID_ADDRESS);
   }
 
-  assert(false && "swift async supports only x86_64 and arm64");
+  assert(false && "swift async: unsupported architecture");
   return LLDB_INVALID_ADDRESS;
 }
 
@@ -3407,6 +3415,72 @@ static llvm::Expected<bool> IsIndirectContext(Process &process,
   return prologue_range.ContainsLoadAddress(pc, &process.GetTarget());
 }
 
+/// Convert a Wasm table index to a wasm_addr_t code address.
+/// The table index is used in the indirect function table; this resolves it
+/// through the elem section to get a code section offset, then encodes it
+/// as a wasm_addr_t using the module_id from the current PC.
+static std::optional<addr_t>
+ResolveWasmTableIndex(addr_t raw_table_index, SymbolContext &sc,
+                      addr_t current_pc) {
+  ModuleSP module = sc.module_sp;
+  if (!module)
+    return std::nullopt;
+  ObjectFile *obj = module->GetObjectFile();
+  if (!obj)
+    return std::nullopt;
+
+  // Get the file data and create an LLVM WasmObjectFile to access elem
+  // segments. This uses LLVM's Object library directly, avoiding a dependency
+  // on LLDB's ObjectFileWasm plugin.
+  DataExtractorSP data_sp;
+  obj->GetData(0, obj->GetByteSize(), data_sp);
+  if (!data_sp || !data_sp->GetByteSize())
+    return std::nullopt;
+
+  auto buf = llvm::MemoryBufferRef(
+      toStringRef(data_sp->GetData()), "");
+  llvm::Error err = llvm::Error::success();
+  llvm::object::WasmObjectFile wasm_obj(buf, err);
+  if (err) {
+    llvm::consumeError(std::move(err));
+    return std::nullopt;
+  }
+
+  // Walk elem segments to map table_index → function_index.
+  std::optional<uint32_t> func_idx;
+  for (const auto &seg : wasm_obj.elements()) {
+    if (seg.Flags & llvm::wasm::WASM_ELEM_SEGMENT_IS_PASSIVE)
+      continue;
+    uint32_t offset = seg.Offset.Inst.Value.Int32;
+    if (raw_table_index >= offset &&
+        raw_table_index < offset + seg.Functions.size()) {
+      func_idx = seg.Functions[raw_table_index - offset];
+      break;
+    }
+  }
+  if (!func_idx)
+    return std::nullopt;
+
+  // Map function_index → code section offset using the WasmObjectFile's
+  // parsed import count and function bodies.
+  uint32_t num_imports = wasm_obj.getNumImportedFunctions();
+  if (*func_idx < num_imports)
+    return std::nullopt;
+  uint32_t local_idx = *func_idx - num_imports;
+  auto functions = wasm_obj.functions();
+  if (local_idx >= functions.size())
+    return std::nullopt;
+  uint32_t code_offset =
+      functions[local_idx].CodeSectionOffset + functions[local_idx].CodeOffset;
+
+  // Encode as wasm_addr_t using the module_id from the current PC.
+  using lldb_private::wasm::WasmAddressType;
+  using lldb_private::wasm::wasm_addr_t;
+  wasm_addr_t pc_addr(current_pc);
+  return (addr_t)wasm_addr_t(WasmAddressType::Object, pc_addr.GetModuleID(),
+                             code_offset);
+}
+
 // Examine the register state and detect the transition from a real
 // stack frame to an AsyncContext frame, or a frame in the middle of
 // the AsyncContext chain, and return an UnwindPlan for these situations.
@@ -3426,6 +3500,113 @@ SwiftLanguageRuntime::GetRuntimeUnwindPlan(ProcessSP process_sp,
       GetAsyncUnwindRegisterNumbers(arch.GetMachine());
   if (!regnums)
     return UnwindPlanSP();
+
+  // Wasm has no frame pointer register; handle all async frames uniformly
+  // using constant-valued plans with table index resolution.
+  if (arch.GetMachine() == llvm::Triple::wasm32) {
+    // [1] Read async context (Wasm local 0).
+    addr_t async_reg = GetAsyncContext(regctx);
+    if (async_reg == LLDB_INVALID_ADDRESS)
+      return UnwindPlanSP();
+
+    // [2] Get symbol context, check if async funclet.
+    Address pc;
+    pc.SetLoadAddress(regctx->GetPC(), &target);
+    SymbolContext sc;
+    if (pc.IsValid())
+      if (!pc.CalculateSymbolContext(
+              &sc, eSymbolContextFunction | eSymbolContextSymbol))
+        return UnwindPlanSP();
+
+    ConstString mangled_name;
+    if (sc.function)
+      mangled_name = sc.function->GetMangled().GetMangledName();
+    else if (sc.symbol)
+      mangled_name = sc.symbol->GetMangled().GetMangledName();
+    else
+      return UnwindPlanSP();
+
+    if (!IsAnySwiftAsyncFunctionSymbol(mangled_name.GetStringRef()))
+      return UnwindPlanSP();
+
+    // [3] Q funclet indirection with table index conversion.
+    addr_t async_ctx = async_reg;
+    const int32_t ptr_size = process_sp->GetAddressByteSize();
+    if (IsSwiftAsyncAwaitResumePartialFunctionSymbol(mangled_name)) {
+      // Read continuation ptr (table index) from async_reg + ptr_size.
+      llvm::Expected<addr_t> raw_cont =
+          ReadPtrFromAddr(*process_sp, async_reg, ptr_size);
+      if (!raw_cont)
+        return log_expected(raw_cont.takeError());
+
+      // Convert table index to code address for comparison.
+      bool is_same_function = false;
+      if (auto resolved =
+              ResolveWasmTableIndex(*raw_cont, sc, regctx->GetPC())) {
+        Address cont_addr;
+        cont_addr.SetLoadAddress(*resolved, &target);
+        if (sc.function) {
+          AddressRange range;
+          is_same_function = sc.function->GetRangeContainingLoadAddress(
+              *resolved, target, range);
+        } else {
+          is_same_function =
+              sc.symbol->ContainsFileAddress(cont_addr.GetFileAddress());
+        }
+      }
+
+      if (is_same_function) {
+        llvm::Expected<addr_t> derefed =
+            ReadPtrFromAddr(*process_sp, async_reg);
+        if (!derefed)
+          return log_expected(derefed.takeError());
+        async_ctx = *derefed;
+      }
+    }
+
+    // [4] Read parent context pointer (linear memory address, no conversion).
+    llvm::Expected<addr_t> parent_ctx =
+        ReadPtrFromAddr(*process_sp, async_ctx);
+    if (!parent_ctx)
+      return log_expected(parent_ctx.takeError());
+
+    // [5] Read ResumeParent, convert table index to code address.
+    llvm::Expected<addr_t> raw_resume =
+        ReadPtrFromAddr(*process_sp, async_ctx, ptr_size);
+    if (!raw_resume)
+      return log_expected(raw_resume.takeError());
+
+    // [6] Build constant unwind plan.
+    UnwindPlan::Row row;
+    row.SetOffset(0);
+    row.GetCFAValue().SetIsConstant(async_ctx);
+    row.SetRegisterLocationToIsConstant(regnums->async_ctx_regnum, *parent_ctx,
+                                        /*can_replace=*/false);
+
+    if (auto resolved =
+            ResolveWasmTableIndex(*raw_resume, sc, regctx->GetPC())) {
+      llvm::Expected<uint64_t> prologue =
+          FindPrologueSize(*process_sp, *resolved);
+      addr_t final_pc = prologue ? *resolved + *prologue : *resolved;
+      if (!prologue)
+        llvm::consumeError(prologue.takeError());
+      row.SetRegisterLocationToIsConstant(regnums->pc_regnum, final_pc, false);
+    } else {
+      // Can't resolve table index; fall back to reading from CFA + ptr_size.
+      row.SetRegisterLocationToAtCFAPlusOffset(regnums->pc_regnum, ptr_size,
+                                               false);
+    }
+
+    row.SetUnspecifiedRegistersAreUndefined(true);
+    UnwindPlanSP plan = std::make_shared<UnwindPlan>(regnums->GetRegisterKind());
+    plan->AppendRow(row);
+    plan->SetSourceName("Swift Wasm AsyncContext-Chain");
+    plan->SetSourcedFromCompiler(eLazyBoolYes);
+    plan->SetUnwindPlanValidAtAllInstructions(eLazyBoolYes);
+    plan->SetUnwindPlanForSignalTrap(eLazyBoolYes);
+    behaves_like_zeroth_frame = true;
+    return plan;
+  }
 
   // If we can't fetch the fp reg, and we *can* fetch the async
   // context register, then we're in the middle of the AsyncContext
@@ -3484,7 +3665,7 @@ SwiftLanguageRuntime::GetRuntimeUnwindPlan(ProcessSP process_sp,
     return log_expected(async_ctx.takeError());
 
   UnwindPlan::Row row;
-  const int32_t ptr_size = 8;
+  const int32_t ptr_size = process_sp->GetAddressByteSize();
   row.SetOffset(0);
 
   // The CFA of a funclet is its own async context.
@@ -3519,7 +3700,7 @@ UnwindPlanSP SwiftLanguageRuntime::GetFollowAsyncContextUnwindPlan(
     ProcessSP process_sp, RegisterContext *regctx, ArchSpec &arch,
     bool &behaves_like_zeroth_frame) {
   UnwindPlan::Row row;
-  const int32_t ptr_size = 8;
+  const int32_t ptr_size = process_sp->GetAddressByteSize();
   row.SetOffset(0);
 
   std::optional<AsyncUnwindRegisterNumbers> regnums =

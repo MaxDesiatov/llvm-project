@@ -11,6 +11,7 @@
 
 #include "lldb/Symbol/ObjectFile.h"
 #include "lldb/Utility/ArchSpec.h"
+#include "llvm/Object/Wasm.h"
 #include <optional>
 
 namespace lldb_private {
@@ -113,6 +114,24 @@ public:
   /// information for this module.
   std::optional<FileSpec> GetExternalDebugInfoFileSpec();
 
+  /// Resolve a Wasm indirect function table index to a code section offset.
+  /// Returns std::nullopt if the index cannot be resolved.
+  std::optional<uint32_t> ResolveTableIndex(uint32_t table_index);
+
+  struct WasmFunction {
+    /// Offset from the section to the function start, past the size ULEB that
+    /// some tools count as part of the function.
+    lldb::offset_t section_offset = LLDB_INVALID_OFFSET;
+
+    /// Function size, including the function header but not the size ULEB that
+    /// precedes it.
+    uint32_t size = 0;
+
+    /// Offset from section_offset to the first instruction, past the local
+    /// variable declarations.
+    uint32_t code_offset = 0;
+  };
+
 private:
   ObjectFileWasm(const lldb::ModuleSP &module_sp,
                  lldb::DataExtractorSP extractor_sp, lldb::offset_t data_offset,
@@ -148,9 +167,14 @@ private:
   void DumpSectionHeaders(llvm::raw_ostream &ostream);
   /// \}
 
+  /// Lazily create and return the LLVM WasmObjectFile for elem section access.
+  llvm::Expected<llvm::object::WasmObjectFile &> GetWasmObjectFile();
+
   std::vector<section_info> m_sect_infos;
   uint32_t m_num_imported_functions = 0;
+  std::vector<WasmFunction> m_functions;
   std::vector<Symbol> m_symbols;
+  std::unique_ptr<llvm::object::WasmObjectFile> m_wasm_object_file;
   ArchSpec m_arch;
   UUID m_uuid;
 };

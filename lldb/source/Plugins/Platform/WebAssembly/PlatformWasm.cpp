@@ -168,9 +168,12 @@ lldb::ProcessSP PlatformWasm::DebugProcess(ProcessLaunchInfo &launch_info,
   }
   uint16_t port = *expected_port;
 
-  Args args({runtime.GetPath(),
-             llvm::formatv("{0}{1}", properties.GetPortArg(), port).str()});
+  std::string runtime_path = runtime.GetPath();
+  Args args;
+  args.AppendArgument(runtime_path);
   args.AppendArguments(properties.GetRuntimeArgs());
+  args.AppendArgument(
+      llvm::formatv("{0}{1}", properties.GetPortArg(), port).str());
   args.AppendArguments(launch_info.GetArguments());
 
   launch_info.SetArguments(args, true);

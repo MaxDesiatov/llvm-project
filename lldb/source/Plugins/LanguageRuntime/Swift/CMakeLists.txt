@@ -10,6 +10,9 @@ add_lldb_library(lldbPluginSwiftLanguageRuntime PLUGIN
   SwiftMetadataCache.cpp
   SwiftTask.cpp
 
+  LINK_COMPONENTS
+    Object
+
   LINK_LIBS
     swiftAST
     swiftBasic

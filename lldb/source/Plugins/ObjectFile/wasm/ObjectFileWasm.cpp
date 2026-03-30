@@ -307,20 +307,6 @@ bool ObjectFileWasm::ParseHeader() {
   return true;
 }
 
-struct WasmFunction {
-  /// Offset from the section to the start of the function. This points past the
-  /// function size, which some other tools consider part of the function.
-  lldb::offset_t section_offset = LLDB_INVALID_OFFSET;
-
-  /// Function size, which includes the function header, but not the size ULEB
-  /// that proceeds it.
-  uint32_t size = 0;
-
-  /// Offset from section_offset to the first instruction in the function, past
-  /// the local variable declarations.
-  uint32_t code_offset = 0;
-};
-
 static llvm::Expected<uint32_t> ParseImports(DataExtractor &import_data) {
   // Currently this function just returns the number of imported functions.
   // If we want to do anything with global names in the future, we'll also
@@ -378,7 +364,7 @@ static llvm::Expected<uint32_t> GetFunctionCodeOffset(DataExtractor &data,
   return offset - locals_start;
 }
 
-static llvm::Expected<std::vector<WasmFunction>>
+static llvm::Expected<std::vector<ObjectFileWasm::WasmFunction>>
 ParseFunctions(DataExtractor &data) {
   lldb::offset_t offset = 0;
 
@@ -386,7 +372,7 @@ ParseFunctions(DataExtractor &data) {
   if (!function_count)
     return function_count.takeError();
 
-  std::vector<WasmFunction> functions;
+  std::vector<ObjectFileWasm::WasmFunction> functions;
   functions.reserve(*function_count);
 
   for (uint32_t i = 0; i < *function_count; ++i) {
@@ -488,7 +474,7 @@ static llvm::Expected<std::vector<WasmSegment>> ParseData(DataExtractor &data) {
 
 static llvm::Expected<std::vector<Symbol>>
 ParseNames(SectionSP code_section_sp, DataExtractor &name_data,
-           const std::vector<WasmFunction> &functions,
+           const std::vector<ObjectFileWasm::WasmFunction> &functions,
            std::vector<WasmSegment> &segments,
            uint32_t num_imported_functions) {
 
@@ -528,7 +514,7 @@ ParseNames(SectionSP code_section_sp, DataExtractor &name_data,
                                /*contains_linker_annotations=*/false,
                                /*flags=*/0);
         } else {
-          const WasmFunction &func = functions[*idx - num_imported_functions];
+          const auto &func = functions[*idx - num_imported_functions];
           symbols.emplace_back(symbols.size(), *name, lldb::eSymbolTypeCode,
                                /*external=*/false, /*is_debug=*/false,
                                /*is_trampoline=*/false, /*is_artificial=*/false,
@@ -669,7 +655,6 @@ void ObjectFileWasm::CreateSections(SectionList &unified_section_list) {
 
   // The name section contains names and indexes. First parse the data from the
   // relevant sections so we can access it by its index.
-  std::vector<WasmFunction> functions;
   std::vector<WasmSegment> segments;
 
   // Parse the code section.
@@ -682,7 +667,7 @@ void ObjectFileWasm::CreateSections(SectionList &unified_section_list) {
       LLDB_LOG_ERROR(log, maybe_functions.takeError(),
                      "Failed to parse Wasm code section: {0}");
     } else {
-      functions = *maybe_functions;
+      m_functions = std::move(*maybe_functions);
     }
   }
 
@@ -719,7 +704,7 @@ void ObjectFileWasm::CreateSections(SectionList &unified_section_list) {
     DataExtractor names_data = ReadImageData(info->offset, info->size);
     llvm::Expected<std::vector<Symbol>> symbols = ParseNames(
         m_sections_up->FindSectionByType(lldb::eSectionTypeCode, false),
-        names_data, functions, segments, m_num_imported_functions);
+        names_data, m_functions, segments, m_num_imported_functions);
     if (!symbols) {
       LLDB_LOG_ERROR(log, symbols.takeError(),
                      "Failed to parse Wasm names: {0}");
@@ -838,6 +823,46 @@ DataExtractor ObjectFileWasm::ReadImageData(offset_t offset, uint32_t size) {
   }
   data.SetByteOrder(GetByteOrder());
   return data;
+}
+
+llvm::Expected<llvm::object::WasmObjectFile &>
+ObjectFileWasm::GetWasmObjectFile() {
+  if (m_wasm_object_file)
+    return *m_wasm_object_file;
+
+  auto buf = llvm::MemoryBufferRef(
+      toStringRef(m_data_nsp->GetData()), "");
+  auto obj = llvm::object::ObjectFile::createWasmObjectFile(buf);
+  if (!obj)
+    return obj.takeError();
+  m_wasm_object_file = std::move(*obj);
+  return *m_wasm_object_file;
+}
+
+std::optional<uint32_t>
+ObjectFileWasm::ResolveTableIndex(uint32_t table_index) {
+  auto wasm_or_err = GetWasmObjectFile();
+  if (!wasm_or_err) {
+    llvm::consumeError(wasm_or_err.takeError());
+    return std::nullopt;
+  }
+
+  for (const auto &seg : wasm_or_err->elements()) {
+    if (seg.Flags & llvm::wasm::WASM_ELEM_SEGMENT_IS_PASSIVE)
+      continue;
+    uint32_t offset = seg.Offset.Inst.Value.Int32;
+    if (table_index >= offset &&
+        table_index < offset + seg.Functions.size()) {
+      uint32_t func_idx = seg.Functions[table_index - offset];
+      if (func_idx < m_num_imported_functions)
+        return std::nullopt;
+      uint32_t local_idx = func_idx - m_num_imported_functions;
+      if (local_idx < m_functions.size())
+        return m_functions[local_idx].section_offset;
+      return std::nullopt;
+    }
+  }
+  return std::nullopt;
 }
 
 std::optional<FileSpec> ObjectFileWasm::GetExternalDebugInfoFileSpec() {
